@@ -291,7 +291,9 @@ public class NativeMainActivity extends AppCompatActivity {
 
         desktopUserAgentActive = shouldUseDesktop;
         webView.getSettings().setUserAgentString(
-                shouldUseDesktop ? DESKTOP_USER_AGENT : mobileUserAgent
+                shouldUseDesktop
+                        ? DESKTOP_USER_AGENT + " StatisticsLoverAndroid/" + BuildConfig.VERSION_NAME
+                        : mobileUserAgent
         );
 
         if (allowReload && !userAgentReloadInProgress) {
