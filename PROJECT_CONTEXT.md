@@ -222,3 +222,10 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 643167 bytes.
 - Published APK SHA-256: `90ae77df5835673ffd2d1890eb4e3b14d491a178d8e7bf9005db63f10c3d5dc7`.
 - Self-update metadata now advertises 1.0.10.
+
+
+### A12 follow-up — invalidate stale WebView lecture bundle
+- The Statistics Lover service worker cache was bumped from `statistics-lover-static-v1` to `statistics-lover-static-v2` on both web `develop` and production `main`.
+- This forces old cached JavaScript containing the mobile recording gate to be discarded after the new service worker activates.
+- Production web deployment for commit `ee8157ddd3eb5d1d612ecc8955d18375e6f8a5e4` is READY on `statistics-lover.vercel.app`.
+- Production Quality run `37144473341` passed.
