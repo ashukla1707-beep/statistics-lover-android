@@ -8,6 +8,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -38,8 +39,7 @@ public class NativeMainActivity extends AppCompatActivity {
     private NativeUi ui;
     private LinearLayout root;
     private FrameLayout content;
-    private LinearLayout nav;
-    private String screen="login";
+    private String screen="public-home";
 
     private JSONObject profile=new JSONObject();
     private JSONObject summary=new JSONObject();
@@ -55,7 +55,7 @@ public class NativeMainActivity extends AppCompatActivity {
         ui=new NativeUi(this);
         createRoot();
         configureBack();
-        if(api.session().hasSession()) bootstrap(); else showLogin();
+        showPublicHome();
     }
 
     private void createRoot(){
@@ -75,9 +75,16 @@ public class NativeMainActivity extends AppCompatActivity {
     private void configureBack(){
         getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){
             @Override public void handleOnBackPressed(){
-                if("login".equals(screen)) finish();
-                else if("home".equals(screen)) moveTaskToBack(true);
-                else showHome();
+                if("public-home".equals(screen)){
+                    finish();
+                }else if("login".equals(screen)||"dashboard".equals(screen)){
+                    showPublicHome();
+                }else if(profile.length()>0){
+                    buildChrome();
+                    showHome();
+                }else{
+                    showPublicHome();
+                }
             }
         });
     }
@@ -99,10 +106,7 @@ public class NativeMainActivity extends AppCompatActivity {
 
     private void showLogin(){
         screen="login";
-        root.removeAllViews();
-        content=new FrameLayout(this);
-        root.addView(content,new LinearLayout.LayoutParams(-1,0,1f));
-        nav=null;
+        buildPublicChrome();
         replace(LoginScreen.build(this,ui,(email,credential)->{
             if(email.isBlank()||credential.isBlank()){
                 toast("Enter email and password.");
@@ -157,59 +161,197 @@ public class NativeMainActivity extends AppCompatActivity {
         });
     }
 
-    private void buildChrome(){
-        root.removeAllViews();
-
+    private LinearLayout siteHeader(boolean accountMode){
         LinearLayout top=new LinearLayout(this);
         top.setGravity(Gravity.CENTER_VERTICAL);
-        top.setPadding(ui.dp(18),ui.dp(8),ui.dp(10),ui.dp(8));
+        top.setPadding(ui.dp(18),ui.dp(9),ui.dp(8),ui.dp(9));
         top.setBackgroundColor(Color.WHITE);
-        top.addView(ui.text("Statistics Lover",20,NativeUi.NAVY,true),
-                new LinearLayout.LayoutParams(0,-2,1f));
 
-        Button logout=ui.button("Logout",false);
-        logout.setOnClickListener(v->{
-            api.signOut();
-            showLogin();
+        LinearLayout brand=new LinearLayout(this);
+        brand.setOrientation(LinearLayout.VERTICAL);
+        brand.addView(ui.text("Statistics Lover",19,NativeUi.NAVY,true));
+        brand.addView(ui.text("Learn • Practice • Succeed",10,NativeUi.MUTED,true));
+        top.addView(brand,new LinearLayout.LayoutParams(0,-2,1f));
+
+        Button menu=ui.button("☰",false);
+        menu.setTextSize(22);
+        menu.setBackgroundColor(Color.TRANSPARENT);
+        menu.setContentDescription("Open navigation");
+        menu.setOnClickListener(v->{
+            if(accountMode) showAccountMenu(v);
+            else showPublicMenu(v);
         });
-        top.addView(logout,new LinearLayout.LayoutParams(ui.dp(92),ui.dp(44)));
-        root.addView(top);
-
-        content=new FrameLayout(this);
-        root.addView(content,new LinearLayout.LayoutParams(-1,0,1f));
-
-        nav=new LinearLayout(this);
-        nav.setOrientation(LinearLayout.HORIZONTAL);
-        nav.setBackgroundColor(Color.WHITE);
-
-        addNav("Home",this::showHome);
-        addNav("Courses",this::showCourses);
-        addNav("Inbox",this::showInbox);
-        addNav("Orders",this::showOrders);
-        if(roles.contains("teacher")) addNav("Teach",this::showTeacher);
-        else if(hasOperationsRole()) addNav("Ops",this::showOperations);
-        else addNav("Store",this::showStore);
-
-        root.addView(nav,new LinearLayout.LayoutParams(-1,ui.dp(62)));
+        top.addView(menu,new LinearLayout.LayoutParams(ui.dp(56),ui.dp(48)));
+        return top;
     }
 
-    private void addNav(String label,Runnable action){
-        Button button=new Button(this);
-        button.setText(label);
-        button.setAllCaps(false);
-        button.setTextSize(11);
-        button.setTextColor(NativeUi.NAVY);
-        button.setBackgroundColor(Color.TRANSPARENT);
-        button.setOnClickListener(v->action.run());
-        nav.addView(button,new LinearLayout.LayoutParams(0,-1,1f));
+    private void buildPublicChrome(){
+        root.removeAllViews();
+        root.addView(siteHeader(false));
+        content=new FrameLayout(this);
+        root.addView(content,new LinearLayout.LayoutParams(-1,0,1f));
+    }
+
+    private void buildChrome(){
+        root.removeAllViews();
+        root.addView(siteHeader(true));
+        content=new FrameLayout(this);
+        root.addView(content,new LinearLayout.LayoutParams(-1,0,1f));
+    }
+
+    private void showPublicMenu(View anchor){
+        PopupMenu popup=new PopupMenu(this,anchor);
+        popup.getMenu().add("Home");
+        popup.getMenu().add("Courses");
+        popup.getMenu().add("Free Content");
+        popup.getMenu().add("Test Series");
+        popup.getMenu().add("PYQs");
+        popup.getMenu().add("Study Material");
+        popup.getMenu().add("About");
+        popup.getMenu().add(api.session().hasSession()?"Dashboard":"Student Login");
+        popup.setOnMenuItemClickListener(item->{
+            String title=item.getTitle().toString();
+            switch(title){
+                case "Home" -> showPublicHome();
+                case "Courses" -> showStore();
+                case "Free Content" -> showPublicSection(
+                        "Free Content",
+                        "Open lessons and learning resources are part of the Statistics Lover ecosystem."
+                );
+                case "Test Series" -> showPublicSection(
+                        "Test Series",
+                        "Topic-wise and full-length assessments are connected to your Statistics Lover account."
+                );
+                case "PYQs" -> showPublicSection(
+                        "PYQs",
+                        "Previous-year questions are organized with tests and performance analytics."
+                );
+                case "Study Material" -> showPublicSection(
+                        "Study Material",
+                        "Notes, formula sheets and learning resources are available through enrolled courses."
+                );
+                case "About" -> showPublicSection(
+                        "About Statistics Lover",
+                        "A focused platform for live classes, recorded lectures, tests, PYQs and study material."
+                );
+                default -> openAccount();
+            }
+            return true;
+        });
+        popup.show();
+    }
+
+    private void showAccountMenu(View anchor){
+        PopupMenu popup=new PopupMenu(this,anchor);
+        popup.getMenu().add("Home");
+        popup.getMenu().add("Dashboard");
+        popup.getMenu().add("My Courses");
+        popup.getMenu().add("Notifications");
+        popup.getMenu().add("My Orders");
+        popup.getMenu().add("Courses");
+        if(roles.contains("teacher")) popup.getMenu().add("Teacher");
+        if(hasOperationsRole()) popup.getMenu().add("Admin");
+        popup.getMenu().add("Logout");
+        popup.setOnMenuItemClickListener(item->{
+            String title=item.getTitle().toString();
+            switch(title){
+                case "Home" -> showPublicHome();
+                case "Dashboard" -> showHome();
+                case "My Courses" -> showCourses();
+                case "Notifications" -> showInbox();
+                case "My Orders" -> showOrders();
+                case "Courses" -> showStore();
+                case "Teacher" -> showTeacher();
+                case "Admin" -> showOperations();
+                case "Logout" -> {
+                    api.signOut();
+                    clearAccountState();
+                    showPublicHome();
+                }
+            }
+            return true;
+        });
+        popup.show();
+    }
+
+    private void openAccount(){
+        if(!api.session().hasSession()){
+            showLogin();
+            return;
+        }
+        if(profile.length()>0){
+            buildChrome();
+            showHome();
+        }else{
+            bootstrap();
+        }
+    }
+
+    private void showPublicHome(){
+        buildPublicChrome();
+        screen="public-home";
+        replace(PublicHomeScreen.build(ui,new PublicHomeScreen.Listener(){
+            @Override public void onExploreCourses(){
+                showStore();
+            }
+
+            @Override public void onFreeContent(){
+                showPublicSection(
+                        "Free Content",
+                        "Explore open learning resources and then sign in when you are ready to continue with a batch."
+                );
+            }
+
+            @Override public void onAccount(){
+                openAccount();
+            }
+        },api.session().hasSession()));
+    }
+
+    private void showPublicSection(String title,String description){
+        buildPublicChrome();
+        screen="public-section";
+        ScrollView scroll=ui.page(title,description);
+        LinearLayout body=ui.body(scroll);
+
+        LinearLayout card=ui.card();
+        card.addView(ui.text("Statistics Lover",12,NativeUi.MAGENTA,true));
+        card.addView(ui.text(
+                "The same learning ecosystem is available across the web platform and Android app.",
+                16,NativeUi.NAVY,true
+        ));
+        ui.add(card,ui.text(
+                "Use Courses to browse available batches or Student Login to continue with your account.",
+                13,NativeUi.MUTED,false
+        ),8);
+        body.addView(card);
+
+        Button courses=ui.button("Explore Courses",true);
+        courses.setOnClickListener(v->showStore());
+        ui.add(body,courses,6);
+
+        Button back=ui.button("Back to Home",false);
+        back.setOnClickListener(v->showPublicHome());
+        ui.add(body,back,10);
+
+        replace(scroll);
+    }
+
+    private void clearAccountState(){
+        roles.clear();
+        profile=new JSONObject();
+        summary=new JSONObject();
+        enrollments=new JSONArray();
+        orders=new JSONArray();
+        teacherAssignments=new JSONArray();
     }
 
     private void showHome(){
-        screen="home";
+        screen="dashboard";
         String name=profile.optString("full_name","");
         if(name.isBlank()||"null".equals(name)) name=api.session().email();
 
-        ScrollView scroll=ui.page("Welcome, "+name,"Your native Statistics Lover dashboard");
+        ScrollView scroll=ui.page("Welcome, "+name,"Your Statistics Lover dashboard");
         LinearLayout body=ui.body(scroll);
 
         LinearLayout role=ui.card();
@@ -393,7 +535,8 @@ public class NativeMainActivity extends AppCompatActivity {
     }
 
     private void showStore(){
-        busy("Loading store…");
+        boolean accountReady=profile.length()>0;
+        busy("Loading courses…");
         io.execute(()->{
             try{
                 JSONObject data=api.offers();
@@ -401,14 +544,21 @@ public class NativeMainActivity extends AppCompatActivity {
                 runOnUiThread(()->replace(
                         StoreScreen.build(
                                 this,ui,offers,
-                                (batchId,coupon)->createOrder(batchId,coupon),
-                                this::showHome
+                                (batchId,coupon)->{
+                                    if(!api.session().hasSession()){
+                                        toast("Sign in to create an order.");
+                                        showLogin();
+                                    }else{
+                                        createOrder(batchId,coupon);
+                                    }
+                                },
+                                accountReady?this::showHome:this::showPublicHome
                         )
                 ));
                 screen="store";
             }catch(Exception error){
                 runOnUiThread(()->{
-                    showHome();
+                    if(accountReady) showHome(); else showPublicHome();
                     toast(message(error));
                 });
             }
