@@ -13,6 +13,7 @@ import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -55,6 +56,7 @@ public class NativeMainActivity extends AppCompatActivity {
     private WebChromeClient.CustomViewCallback customViewCallback;
     private ValueCallback<Uri[]> filePathCallback;
     private AppUpdateManager updateManager;
+    private boolean appFullscreen;
 
     @Override
     protected void onCreate(Bundle state) {
@@ -141,6 +143,11 @@ public class NativeMainActivity extends AppCompatActivity {
         CookieManager cookies = CookieManager.getInstance();
         cookies.setAcceptCookie(true);
         cookies.setAcceptThirdPartyCookies(webView, true);
+
+        webView.addJavascriptInterface(
+                new StatisticsLoverNativeBridge(),
+                "StatisticsLoverNative"
+        );
 
         webView.setWebViewClient(new WebViewClient() {
             @Override
@@ -281,14 +288,48 @@ public class NativeMainActivity extends AppCompatActivity {
 
         if (recording) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        } else if (customView == null) {
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else {
+            if (appFullscreen) {
+                exitAppFullscreen(true);
+            }
+            if (customView == null) {
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            }
         }
 
         // The APK uses a desktop Chrome user-agent from startup while keeping the
         // real phone viewport width. This preserves the responsive mobile layout
-        // and lets Google Drive render its desktop-capable player immediately,
-        // avoiding the old route reload when "Watch recording" was tapped.
+        // and lets Google Drive render its desktop-capable player immediately.
+    }
+
+    private final class StatisticsLoverNativeBridge {
+        @JavascriptInterface
+        public void enterFullscreen() {
+            runOnUiThread(() -> {
+                if (webView == null || !isRecordingUrl(webView.getUrl())) return;
+                appFullscreen = true;
+                enterImmersiveLandscape();
+            });
+        }
+
+        @JavascriptInterface
+        public void exitFullscreen() {
+            runOnUiThread(() -> exitAppFullscreen(false));
+        }
+    }
+
+    private void exitAppFullscreen(boolean notifyWeb) {
+        if (!appFullscreen) return;
+        appFullscreen = false;
+
+        if (notifyWeb && webView != null) {
+            webView.evaluateJavascript(
+                    "window.dispatchEvent(new CustomEvent('statisticslover:exit-fullscreen'))",
+                    null
+            );
+        }
+
+        exitImmersivePortrait();
     }
 
     private void enterImmersiveLandscape() {
@@ -364,7 +405,9 @@ public class NativeMainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (customView != null) {
+                if (appFullscreen) {
+                    exitAppFullscreen(true);
+                } else if (customView != null) {
                     hideCustomView();
                 } else if (webView != null && webView.canGoBack()) {
                     webView.goBack();
@@ -420,6 +463,9 @@ public class NativeMainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (appFullscreen) {
+            exitAppFullscreen(false);
+        }
         if (customView != null) {
             hideCustomView();
         }
