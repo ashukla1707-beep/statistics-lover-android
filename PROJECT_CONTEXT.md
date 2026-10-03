@@ -229,3 +229,18 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - This forces old cached JavaScript containing the mobile recording gate to be discarded after the new service worker activates.
 - Production web deployment for commit `ee8157ddd3eb5d1d612ecc8955d18375e6f8a5e4` is READY on `statistics-lover.vercel.app`.
 - Production Quality run `37144473341` passed.
+
+
+## Android checkpoint A13 — temporary screen capture enabled
+
+- User requested screenshots and screen recording to be enabled temporarily for testing.
+- Removed Android `FLAG_SECURE` from `NativeMainActivity`.
+- Screenshots and Android screen recording are now allowed throughout the app, including lecture playback.
+- This is a temporary product/testing decision and reduces the previous capture deterrent; re-enable `FLAG_SECURE` later if content-protection policy requires it.
+- No other navigation, playback, safe-area, signing, or auto-update behavior was changed.
+- Version advanced to versionCode 12 / versionName 1.0.11.
+- Signed Android workflow run `37144779193` succeeded end-to-end.
+- Release artifact ID: `11281842651`.
+- Published APK size: 643155 bytes.
+- Published APK SHA-256: `93bb981aac1e13859d9e85494418752ee2866a0febcac742dba76e2f6a38fb4b`.
+- Self-update metadata now advertises version 1.0.11.
