@@ -174,6 +174,7 @@ public class NativeMainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 syncRecordingMode(url, false);
+                installNativeFullscreenFallback();
                 progressBar.setProgress(100);
                 progressBar.setVisibility(View.GONE);
                 CookieManager.getInstance().flush();
@@ -330,6 +331,53 @@ public class NativeMainActivity extends AppCompatActivity {
         }
 
         exitImmersivePortrait();
+    }
+
+    private void installNativeFullscreenFallback() {
+        if (webView == null) return;
+
+        String script =
+                "(function(){"
+                + "if(window.__SL_NATIVE_FULLSCREEN_FALLBACK__)return;"
+                + "window.__SL_NATIVE_FULLSCREEN_FALLBACK__=true;"
+                + "var s=document.createElement('style');"
+                + "s.id='sl-native-fullscreen-style';"
+                + "s.textContent='"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen{position:fixed!important;inset:0!important;z-index:2147483000!important;width:100dvw!important;height:100dvh!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;border:0!important;border-radius:0!important;background:#000!important;box-shadow:none!important;overflow:hidden!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-media{position:absolute!important;inset:0!important;left:0!important;top:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;transform:none!important;will-change:auto!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-media iframe{width:100%!important;height:100%!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-overlay{position:absolute!important;inset:0!important;left:0!important;top:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;transform:none!important;will-change:auto!important;z-index:40!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-fullscreen{right:18px!important;bottom:18px!important;width:48px!important;height:48px!important;border-radius:10px!important;background:rgba(0,0,0,.72)!important;box-shadow:0 3px 12px rgba(0,0,0,.3)!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-drive-brand-blocker{top:12px!important;right:12px!important;width:64px!important;height:64px!important;transform:none!important;}"
+                + "';"
+                + "document.head.appendChild(s);"
+                + "function setButton(b,on){"
+                + "b.setAttribute('aria-label',on?'Exit full screen':'Enter full screen');"
+                + "b.setAttribute('title',on?'Exit full screen':'Full screen');"
+                + "}"
+                + "document.addEventListener('click',function(e){"
+                + "var b=e.target&&e.target.closest?e.target.closest('.lecture-player-fullscreen'):null;"
+                + "if(!b)return;"
+                + "var stage=b.closest('.lecture-player-stage');"
+                + "if(!stage)return;"
+                + "e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();"
+                + "var on=!stage.classList.contains('lecture-player-stage-app-fullscreen');"
+                + "stage.classList.toggle('lecture-player-stage-app-fullscreen',on);"
+                + "document.documentElement.style.overflow=on?'hidden':'';"
+                + "document.body.style.overflow=on?'hidden':'';"
+                + "setButton(b,on);"
+                + "try{if(on){window.StatisticsLoverNative&&window.StatisticsLoverNative.enterFullscreen&&window.StatisticsLoverNative.enterFullscreen();}"
+                + "else{window.StatisticsLoverNative&&window.StatisticsLoverNative.exitFullscreen&&window.StatisticsLoverNative.exitFullscreen();}}catch(_){ }"
+                + "},true);"
+                + "window.addEventListener('statisticslover:exit-fullscreen',function(){"
+                + "var stage=document.querySelector('.lecture-player-stage-app-fullscreen');"
+                + "if(stage)stage.classList.remove('lecture-player-stage-app-fullscreen');"
+                + "document.documentElement.style.overflow='';document.body.style.overflow='';"
+                + "var b=document.querySelector('.lecture-player-fullscreen');if(b)setButton(b,false);"
+                + "});"
+                + "})();";
+
+        webView.evaluateJavascript(script, null);
     }
 
     private void enterImmersiveLandscape() {
