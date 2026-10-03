@@ -62,8 +62,9 @@ public class NativeMainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle state) {
         super.onCreate(state);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
 
+        // Temporary product decision: allow screenshots and screen recording.
+        // Do not set FLAG_SECURE here while this mode is enabled.
         updateManager = new AppUpdateManager(this);
         buildWebShell();
         configureBackNavigation();
