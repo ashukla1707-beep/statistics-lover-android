@@ -37,3 +37,31 @@ app/build/outputs/apk/debug/app-debug.apk
 This repository was split from `ashukla1707-beep/statistics-lover` develop branch after Android checkpoint A3. The original web repository remains untouched during migration.
 
 See `PROJECT_CONTEXT.md` for the Android handoff state and next validation steps.
+
+
+## In-app auto updates
+
+Statistics Lover now follows the Stat Archive update pattern:
+
+1. On launch, the app checks `downloads/version.json` from this repository.
+2. If `versionCode` is newer than the installed build, an **Update available** dialog is shown.
+3. The APK is downloaded to private app cache.
+4. APK size and SHA-256 metadata are verified when present.
+5. Android's **Allow from this source** permission is requested when necessary.
+6. The downloaded APK is opened through a `FileProvider` and Android's normal package installer.
+
+The release workflow is prepared to publish:
+
+- `downloads/statistics-lover.apk`
+- `downloads/version.json`
+
+A persistent signing key is mandatory for Android updates. Configure these GitHub Actions secrets in this repository before using the self-update release channel:
+
+- `KEYSTORE_BASE64`
+- `KEYSTORE_PASSWORD`
+- `KEY_ALIAS`
+- `KEY_PASSWORD`
+
+After those secrets are present, qualifying `main` builds automatically create the signed release APK and refresh the update metadata. Increment `versionCode` for each version that should be offered as an update.
+
+**Important:** the debug APK uses the `.debug` application ID and debug signing. Install the signed release APK once to enter the persistent self-update channel; a debug APK cannot reliably update itself across fresh GitHub-hosted runners.
