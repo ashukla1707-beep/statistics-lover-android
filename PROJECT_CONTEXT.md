@@ -156,3 +156,19 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 640295 bytes.
 - Published APK SHA-256: `630327a6a2f76d5b7a4f6397f66ee3001b6d87cca5f5afb29fbf5298ca643afe`.
 - The signed 1.0.5 build should detect 1.0.6 through the in-app updater; 1.0.6 can also be installed manually over the signed 1.0.5 build.
+
+
+## Android checkpoint A9 — public production web host
+
+- User reported 1.0.6 was redirected from the protected Vercel preview deployment to `vercel.com/login`, which then opened in the external browser.
+- Root cause: the APK was using a Vercel preview alias protected by Vercel Authentication.
+- The Statistics Lover web production alias was force-refreshed from the verified `main` branch.
+- Verified production deployment `dpl_BwUW93vPC9DVkRQ1ApTAPxKRruu3` is READY and owns `statistics-lover.vercel.app`.
+- Android WebView launch URL now uses the public production origin `https://statistics-lover.vercel.app/`.
+- Version advanced to versionCode 8 / versionName 1.0.7.
+- Signed Android workflow run `37142184930` succeeded end-to-end.
+- Release artifact ID: `11280980773`.
+- Published self-update metadata now points to 1.0.7.
+- Published APK size: 640291 bytes.
+- Published APK SHA-256: `be2d3e6e665e8c5ead63e1fa7d173fca59d75ad3764f6291de040d8e24cf8adb`.
+- Expected behavior: Statistics Lover navigation stays inside the APK WebView; normal app startup no longer redirects to Vercel login or launches the browser.
