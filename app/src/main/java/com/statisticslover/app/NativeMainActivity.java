@@ -2,10 +2,15 @@ package com.statisticslover.app;
 
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.ValueCallback;
@@ -28,9 +33,16 @@ import androidx.core.view.WindowInsetsCompat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class NativeMainActivity extends AppCompatActivity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
+    private static final Pattern RECORDING_ROUTE =
+            Pattern.compile(".*/learn/[^/]+/lecture/[^/?#]+(?:[/?#].*)?$");
+    private static final String DESKTOP_USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    + "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    + "Chrome/126.0.0.0 Safari/537.36";
     private static final Set<String> APP_HOSTS = new HashSet<>(Arrays.asList(
             "hstatistics.workers.dev",
             "statistics-lover.vercel.app",
@@ -39,6 +51,11 @@ public class NativeMainActivity extends AppCompatActivity {
 
     private WebView webView;
     private ProgressBar progressBar;
+    private String mobileUserAgent;
+    private boolean desktopUserAgentActive;
+    private boolean userAgentReloadInProgress;
+    private View customView;
+    private WebChromeClient.CustomViewCallback customViewCallback;
     private ValueCallback<Uri[]> filePathCallback;
     private AppUpdateManager updateManager;
 
@@ -117,11 +134,10 @@ public class NativeMainActivity extends AppCompatActivity {
         settings.setAllowContentAccess(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
-        settings.setUserAgentString(
-                settings.getUserAgentString()
-                        + " StatisticsLoverAndroid/"
-                        + BuildConfig.VERSION_NAME
-        );
+        mobileUserAgent = settings.getUserAgentString()
+                + " StatisticsLoverAndroid/"
+                + BuildConfig.VERSION_NAME;
+        settings.setUserAgentString(mobileUserAgent);
 
         CookieManager cookies = CookieManager.getInstance();
         cookies.setAcceptCookie(true);
@@ -138,12 +154,21 @@ public class NativeMainActivity extends AppCompatActivity {
 
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
+                syncRecordingMode(url, false);
                 progressBar.setVisibility(View.VISIBLE);
                 progressBar.setProgress(10);
             }
 
             @Override
+            public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
+                syncRecordingMode(url, true);
+                super.doUpdateVisitedHistory(view, url, isReload);
+            }
+
+            @Override
             public void onPageFinished(WebView view, String url) {
+                userAgentReloadInProgress = false;
+                syncRecordingMode(url, false);
                 progressBar.setProgress(100);
                 progressBar.setVisibility(View.GONE);
                 CookieManager.getInstance().flush();
@@ -151,6 +176,33 @@ public class NativeMainActivity extends AppCompatActivity {
         });
 
         webView.setWebChromeClient(new WebChromeClient() {
+            @Override
+            public void onShowCustomView(View view, CustomViewCallback callback) {
+                if (customView != null) {
+                    callback.onCustomViewHidden();
+                    return;
+                }
+
+                customView = view;
+                customViewCallback = callback;
+
+                FrameLayout contentRoot = findViewById(android.R.id.content);
+                contentRoot.addView(
+                        customView,
+                        new FrameLayout.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT
+                        )
+                );
+                webView.setVisibility(View.GONE);
+                enterImmersiveLandscape();
+            }
+
+            @Override
+            public void onHideCustomView() {
+                hideCustomView();
+            }
+
             @Override
             public void onProgressChanged(WebView view, int progress) {
                 progressBar.setProgress(progress);
@@ -194,6 +246,7 @@ public class NativeMainActivity extends AppCompatActivity {
         String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
 
         if (("http".equals(scheme) || "https".equals(scheme)) && APP_HOSTS.contains(host)) {
+            syncRecordingMode(uri.toString(), false);
             return false;
         }
 
@@ -214,6 +267,95 @@ public class NativeMainActivity extends AppCompatActivity {
         return false;
     }
 
+    private boolean isRecordingUrl(String url) {
+        if (url == null || url.isEmpty()) return false;
+        try {
+            Uri uri = Uri.parse(url);
+            String host = uri.getHost() == null ? "" : uri.getHost().toLowerCase();
+            return APP_HOSTS.contains(host) && RECORDING_ROUTE.matcher(url).matches();
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private void syncRecordingMode(String url, boolean allowReload) {
+        boolean shouldUseDesktop = isRecordingUrl(url);
+
+        if (shouldUseDesktop) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        } else if (customView == null) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+
+        if (shouldUseDesktop == desktopUserAgentActive) return;
+
+        desktopUserAgentActive = shouldUseDesktop;
+        webView.getSettings().setUserAgentString(
+                shouldUseDesktop ? DESKTOP_USER_AGENT : mobileUserAgent
+        );
+
+        if (allowReload && !userAgentReloadInProgress) {
+            userAgentReloadInProgress = true;
+            webView.post(webView::reload);
+        }
+    }
+
+    private void enterImmersiveLandscape() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+                controller.setSystemBarsBehavior(
+                        WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                );
+            }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_FULLSCREEN
+                            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            );
+        }
+    }
+
+    private void exitImmersivePortrait() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                controller.show(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
+            }
+        } else {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+        }
+
+        if (!isRecordingUrl(webView == null ? null : webView.getUrl())) {
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
+    }
+
+    private void hideCustomView() {
+        if (customView == null) return;
+
+        FrameLayout contentRoot = findViewById(android.R.id.content);
+        contentRoot.removeView(customView);
+        customView = null;
+
+        if (webView != null) {
+            webView.setVisibility(View.VISIBLE);
+        }
+        exitImmersivePortrait();
+
+        if (customViewCallback != null) {
+            customViewCallback.onCustomViewHidden();
+            customViewCallback = null;
+        }
+    }
+
     private void openExternal(Uri uri) {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW, uri);
@@ -231,7 +373,9 @@ public class NativeMainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (webView != null && webView.canGoBack()) {
+                if (customView != null) {
+                    hideCustomView();
+                } else if (webView != null && webView.canGoBack()) {
                     webView.goBack();
                 } else {
                     finish();
@@ -285,6 +429,9 @@ public class NativeMainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (customView != null) {
+            hideCustomView();
+        }
         if (webView != null) {
             webView.stopLoading();
             webView.setWebChromeClient(null);
