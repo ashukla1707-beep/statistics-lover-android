@@ -244,3 +244,20 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 643155 bytes.
 - Published APK SHA-256: `93bb981aac1e13859d9e85494418752ee2866a0febcac742dba76e2f6a38fb4b`.
 - Self-update metadata now advertises version 1.0.11.
+
+
+## Android checkpoint A14 — fullscreen rotation reload fixed
+
+- User supplied a screen recording showing lecture playback working inline, but tapping fullscreen caused the screen to rotate, briefly show a white/loading state, then return to portrait/inline playback.
+- Root cause: entering landscape fullscreen triggered an Android configuration/orientation change that recreated `NativeMainActivity` and therefore rebuilt the WebView. The React lecture page reloaded and showed `Loading recording…` instead of preserving the live Google Drive player.
+- Android fix: `NativeMainActivity` now handles orientation/screen-size related configuration changes itself through manifest `configChanges`, preventing Activity/WebView recreation during fullscreen rotation.
+- Web fix: when `StatisticsLoverAndroid/` is detected, the lecture page no longer calls the browser `screen.orientation.lock()/unlock()` APIs. Native Android remains the single owner of fullscreen orientation, avoiding competing orientation locks.
+- Existing native `WebChromeClient` custom-view fullscreen, immersive bars, sensor-landscape entry, portrait restoration, back-to-exit-fullscreen, screen-awake behavior, mobile web layout, screen capture support, and recording app-marker logic remain in place.
+- Web production deployment for commit `091942ba1c6bd3566e98321e957a7eadee69268f` is READY on `statistics-lover.vercel.app`.
+- Web Quality run `37145298542` passed.
+- Android version advanced to versionCode 13 / versionName 1.0.12.
+- Signed Android workflow run `37145306840` succeeded end-to-end.
+- Release artifact ID: `11280954558`.
+- Published APK size: 643183 bytes.
+- Published APK SHA-256: `3c8583567f7957db4ac2a48cb6c0bc7e52597200f3ead4ba938f19632b09279f`.
+- Self-update metadata now advertises version 1.0.12.
