@@ -4,6 +4,10 @@ Dedicated repository for the Statistics Lover **true native Android client**.
 
 ## Current architecture
 
+- The app opens on a native home screen that mirrors the Statistics Lover web home experience.
+- Public navigation follows the website structure: Home, Courses, Free Content, Test Series, PYQs, Study Material, About, and Student Login/Dashboard.
+- Authenticated navigation uses the same web-style menu pattern instead of the earlier bottom-tab shell.
+
 - Launcher flow: `SplashActivity -> NativeMainActivity`
 - Native Android UI; the Statistics Lover website is **not** loaded inside a WebView.
 - Native screens currently cover sign-in/sign-up/recovery, dashboard, enrolled courses, subject/module/lecture learning hierarchy, notifications, orders, store/order creation, teacher scope, and a role-aware operations shell.
