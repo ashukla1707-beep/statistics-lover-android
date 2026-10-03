@@ -185,3 +185,23 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Release artifact ID: `11280304868`.
 - Published APK size: 641859 bytes.
 - Published APK SHA-256: `925c3b15e133ca757d61e6aca4efc50b373fdea4b3f7234fb1f810382e5790a5`.
+
+
+## Android checkpoint A11 — recording playback restored from project plan
+
+- User reported the APK showed the web fallback message **Desktop playback required** instead of playing Google Drive recordings.
+- Checked the canonical web `PROJECT_CONTEXT.md` and confirmed the previously agreed APK design: the lecture recording route must use a desktop-style Chrome user agent, native WebView fullscreen, and landscape orientation for fullscreen playback.
+- Root cause: when the Android shell was changed back to the exact mobile web UI, the earlier recording-route-specific desktop user-agent switching and native fullscreen handling were lost.
+- Restored route detection for `/learn/:batchId/lecture/:lectureId`.
+- Only the recording route now switches from the normal mobile Statistics Lover WebView user agent to a desktop Chrome user agent; leaving the recording route restores the mobile user agent.
+- Route changes through React Router are detected and the recording page reloads once when needed so the web application's mobile-browser gate sees desktop mode.
+- Recording pages keep the screen awake.
+- Restored Android `WebChromeClient` custom-view fullscreen handling, immersive system bars, sensor landscape during fullscreen, and portrait restoration on exit.
+- Android Back exits fullscreen before navigating back.
+- The rest of the APK remains the exact responsive mobile web layout and keeps the safe-area fix.
+- Version advanced to versionCode 10 / versionName 1.0.9.
+- Signed workflow run `37143466485` succeeded end-to-end.
+- Release artifact ID: `11281097186`.
+- Published APK size: 643151 bytes.
+- Published APK SHA-256: `ed939712f26d9a6000f989a2f5be42ba570f171a715c6b57749407761d6cd3a8`.
+- Self-update metadata now publishes version 1.0.9, so an installed signed 1.0.8 should be offered this update on launch.
