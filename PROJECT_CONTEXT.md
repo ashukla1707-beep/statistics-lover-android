@@ -141,3 +141,18 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: `6da11ed1a1af340931ca11ed57af59e16e3bebf7e592b21250479288db2b3f2f`.
 - CI publication race protection was added so stale concurrent builds cannot overwrite the newest update channel.
 - Acceptance target: the APK should visually match the Statistics Lover mobile website because it now uses the exact same responsive web UI rather than duplicating the design natively.
+
+
+## Android checkpoint A8 — live host DNS fix
+
+- User reported that 1.0.5 opened `https://hstatistics.workers.dev/` and failed with `net::ERR_NAME_NOT_RESOLVED`.
+- The workers.dev hostname is not a reliable runtime host and was removed from the Android launch configuration.
+- Verified the active Statistics Lover Vercel develop alias returns HTTP 200 with the current mobile web app: `https://statistics-lover-git-develop-statistics-lover.vercel.app/`.
+- Android WebView launch URL now uses that stable Vercel alias.
+- Version advanced to versionCode 7 / versionName 1.0.6.
+- Signed workflow run `37141748337` succeeded end-to-end.
+- Release artifact ID: `11280837022`.
+- Self-update metadata now publishes version 1.0.6.
+- Published APK size: 640295 bytes.
+- Published APK SHA-256: `630327a6a2f76d5b7a4f6397f66ee3001b6d87cca5f5afb29fbf5298ca643afe`.
+- The signed 1.0.5 build should detect 1.0.6 through the in-app updater; 1.0.6 can also be installed manually over the signed 1.0.5 build.
