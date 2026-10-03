@@ -1,0 +1,39 @@
+name: One-time Android migration
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/migrate-android.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout destination
+        uses: actions/checkout@v4
+
+      - name: Fetch Android A3 source
+        run: |
+          git clone --depth 1 --branch develop https://github.com/ashukla1707-beep/statistics-lover.git /tmp/statistics-lover-source
+          rm -rf app
+          cp -R /tmp/statistics-lover-source/android-app/app ./app
+          cp /tmp/statistics-lover-source/android-app/build.gradle.kts ./build.gradle.kts
+          cp /tmp/statistics-lover-source/android-app/settings.gradle.kts ./settings.gradle.kts
+          cp /tmp/statistics-lover-source/android-app/gradle.properties ./gradle.properties
+
+      - name: Commit migrated Android source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app build.gradle.kts settings.gradle.kts gradle.properties
+          if git diff --cached --quiet; then
+            echo "No Android source changes to commit."
+            exit 0
+          fi
+          git commit -m "feat: migrate native Android A3 source"
+          git push origin HEAD:main
