@@ -22,15 +22,17 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 public class NativeMainActivity extends AppCompatActivity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
-    private static final Set<String> APP_HOSTS = Set.of(
+    private static final Set<String> APP_HOSTS = new HashSet<>(Arrays.asList(
             "hstatistics.workers.dev",
             "statistics-lover.vercel.app",
             "statistics-lover-git-develop-statistics-lover.vercel.app"
-    );
+    ));
 
     private WebView webView;
     private ProgressBar progressBar;
