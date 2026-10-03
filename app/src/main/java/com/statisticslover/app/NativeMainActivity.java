@@ -168,6 +168,7 @@ public class NativeMainActivity extends AppCompatActivity {
             @Override
             public void doUpdateVisitedHistory(WebView view, String url, boolean isReload) {
                 syncRecordingMode(url, true);
+                applyAndroidPlayerViewportFix();
                 super.doUpdateVisitedHistory(view, url, isReload);
             }
 
@@ -282,6 +283,38 @@ public class NativeMainActivity extends AppCompatActivity {
         } catch (Exception ignored) {
             return false;
         }
+    }
+
+    private void applyAndroidPlayerViewportFix() {
+        if (webView == null) return;
+
+        String css =
+                ".lecture-player-stage-android .lecture-player-media,"
+                        + ".lecture-player-stage-android .lecture-player-overlay{"
+                        + "position:absolute!important;inset:0!important;left:0!important;top:0!important;"
+                        + "width:100%!important;height:100%!important;max-width:none!important;"
+                        + "max-height:none!important;aspect-ratio:auto!important;transform:none!important;"
+                        + "transform-origin:center center!important;will-change:auto!important;}"
+                        + ".lecture-player-stage-android .lecture-player-media iframe{"
+                        + "width:100%!important;height:100%!important;}"
+                        + ".lecture-player-stage-android .lecture-player-drive-brand-blocker{"
+                        + "top:6px!important;right:6px!important;width:56px!important;height:56px!important;"
+                        + "padding:3px!important;}"
+                        + ".lecture-player-stage-android .lecture-player-fullscreen{"
+                        + "right:14px!important;bottom:14px!important;width:42px!important;height:42px!important;"
+                        + "border-radius:8px!important;background:rgba(0,0,0,.68)!important;"
+                        + "box-shadow:0 3px 12px rgba(0,0,0,.3)!important;}";
+
+        String script =
+                "(function(){"
+                        + "var id='statistics-lover-android-player-fix';"
+                        + "var style=document.getElementById(id);"
+                        + "if(!style){style=document.createElement('style');style.id=id;"
+                        + "document.head.appendChild(style);}"
+                        + "style.textContent=" + org.json.JSONObject.quote(css) + ";"
+                        + "})();";
+
+        webView.evaluateJavascript(script, null);
     }
 
     private void syncRecordingMode(String url, boolean allowReload) {
