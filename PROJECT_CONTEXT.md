@@ -104,3 +104,22 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Keystore file SHA-256: `7a9aec47a4666571dbc8f346424f96d0cf6331cbd97465afe402750223afc5b8`.
 - Required next action: add the generated values to GitHub Actions secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, and `KEY_PASSWORD`.
 - Never commit the keystore, passwords, or Base64 keystore value to Git. Losing or replacing this key would break Android's same-signing-certificate update chain for existing release installs.
+
+
+## A6 complete — first permanently signed release
+
+- GitHub Actions secrets for the permanent release key are configured and validated by a successful signed build.
+- First signed release: versionCode 5 / versionName 1.0.4.
+- Workflow run: `37140954180` — SUCCESS.
+- Release signing configuration detected successfully.
+- Keystore restoration succeeded.
+- Signed release APK build succeeded.
+- APK signature verification succeeded.
+- Release artifact upload succeeded.
+- Self-update publication succeeded.
+- Published APK: `downloads/statistics-lover.apk`.
+- Published metadata: `downloads/version.json`.
+- Published APK size: 658807 bytes.
+- Published APK SHA-256: `f688b24949c622648b0c4ab79eace13ad72250d56912dd62ca17ac1b5f37ff8b`.
+- Release artifact ID: `11280511616`.
+- This 1.0.4 signed release is the baseline install for the permanent in-app update chain. Future releases must use the same signing secrets and a higher versionCode.
