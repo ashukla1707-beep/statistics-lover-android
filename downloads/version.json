@@ -1,8 +1,8 @@
 {
-  "versionCode": 4,
-  "versionName": "1.0.3",
-  "apkUrl": "",
-  "apkSizeBytes": 0,
-  "sha256": "",
-  "message": "Statistics Lover 1.0.3 is the current Android build."
+  "versionCode": 5,
+  "versionName": "1.0.4",
+  "apkUrl": "https://raw.githubusercontent.com/ashukla1707-beep/statistics-lover-android/main/downloads/statistics-lover.apk",
+  "apkSizeBytes": 658807,
+  "sha256": "f688b24949c622648b0c4ab79eace13ad72250d56912dd62ca17ac1b5f37ff8b",
+  "message": "Statistics Lover 1.0.4 is available."
 }
