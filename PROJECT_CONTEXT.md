@@ -326,3 +326,17 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 644623 bytes.
 - Published APK SHA-256: `caf3be46c555a7f3ef2e8fc4240d415d4267a71d4224abe5109bbb0d7916065b`.
 - Self-update metadata now advertises version 1.0.16.
+
+
+## Android checkpoint A16 — 1.0.16 player-layout change reverted
+
+- User requested the last 1.0.16 player-layout change be reverted.
+- Restored `NativeMainActivity.java` exactly to the pre-1.0.16 / 1.0.15 behavior.
+- Reverted the corresponding web player changes that removed the legacy scaling path on both `main` and `develop`.
+- Service-worker cache advanced to `statistics-lover-static-v6` so the rollback replaces any cached 1.0.16 player assets when the web deployment updates.
+- Rollback is published as versionCode 18 / versionName 1.0.17 so it can install over 1.0.16.
+- Signed Android workflow run `37148951468` succeeded end-to-end.
+- Release artifact ID: `11282174021`.
+- Published APK size: 644363 bytes.
+- Published APK SHA-256: `0b433ebe740ac7273c4ca39be70768a5b1368420c2b5ff624a506fb373bd9f96`.
+- Self-update metadata now advertises version 1.0.17.
