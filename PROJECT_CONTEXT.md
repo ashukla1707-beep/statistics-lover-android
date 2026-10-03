@@ -172,3 +172,16 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 640291 bytes.
 - Published APK SHA-256: `be2d3e6e665e8c5ead63e1fa7d173fca59d75ad3764f6291de040d8e24cf8adb`.
 - Expected behavior: Statistics Lover navigation stays inside the APK WebView; normal app startup no longer redirects to Vercel login or launches the browser.
+
+
+## Android checkpoint A10 — system bar safe-area fix
+
+- User reported that the top of the APK overlapped the Android notification/status bar.
+- Root cause: Android 15 / targetSdk 35 edge-to-edge behavior allowed the WebView root to draw beneath system bars.
+- Added Android system-window inset handling at the shell level using status bar, navigation bar, and display-cutout insets.
+- The web layout itself remains unchanged; only the native container now pads content into the safe area.
+- Version advanced to versionCode 9 / versionName 1.0.8.
+- Signed workflow run `37142528002` succeeded end-to-end.
+- Release artifact ID: `11280304868`.
+- Published APK size: 641859 bytes.
+- Published APK SHA-256: `925c3b15e133ca757d61e6aca4efc50b373fdea4b3f7234fb1f810382e5790a5`.
