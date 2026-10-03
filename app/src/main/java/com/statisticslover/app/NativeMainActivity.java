@@ -37,6 +37,7 @@ public class NativeMainActivity extends AppCompatActivity {
 
     private NativeApiClient api;
     private NativeUi ui;
+    private AppUpdateManager updateManager;
     private LinearLayout root;
     private FrameLayout content;
     private String screen="public-home";
@@ -53,9 +54,11 @@ public class NativeMainActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
         api=new NativeApiClient(this);
         ui=new NativeUi(this);
+        updateManager=new AppUpdateManager(this);
         createRoot();
         configureBack();
         showPublicHome();
+        updateManager.checkForUpdate();
     }
 
     private void createRoot(){
@@ -679,6 +682,12 @@ public class NativeMainActivity extends AppCompatActivity {
 
     private void toast(String value){
         Toast.makeText(this,value,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
+        if(updateManager!=null) updateManager.onResume();
     }
 
     @Override
