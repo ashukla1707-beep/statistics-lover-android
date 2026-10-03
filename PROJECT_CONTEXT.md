@@ -291,3 +291,22 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Service-worker cache advanced to `statistics-lover-static-v3` so the corrected player bundle replaces stale cached code.
 - Production deployment for web commit `ec07f4bce734a71a602595236f99f43d4ec70bb4` is READY on `statistics-lover.vercel.app`.
 - This is a web-layer fix and does not require a new APK version beyond 1.0.13; fully close/reopen the APK so the refreshed web bundle activates.
+
+
+## Android checkpoint A16 — stable custom fullscreen bridge + self-contained fallback
+
+- User supplied a screen recording showing the Statistics Lover custom fullscreen entering landscape, flashing/rotating awkwardly, then collapsing back to portrait.
+- Root cause: the custom button still relied on the browser/WebView Fullscreen API (`requestFullscreen()`). Android then rotated the Activity; WebView dropped the fullscreen custom-view lifecycle during the orientation transition, producing the sideways/black transition and exit back to portrait.
+- Architecture changed: Statistics Lover custom fullscreen no longer depends on the browser Fullscreen API inside the APK.
+- Added a minimal Android JavaScript bridge named `StatisticsLoverNative` with recording-route-guarded `enterFullscreen()` and `exitFullscreen()` methods.
+- Web fullscreen mode expands the lecture stage into a fixed full-viewport layer; native Android alone controls sensor-landscape orientation, immersive system bars, screen-awake behavior, and portrait restoration.
+- Android Back exits the custom fullscreen mode first.
+- Added an Android-side injected fallback for the current production web bundle. It intercepts the Statistics Lover fullscreen button, applies real-viewport fullscreen CSS, and calls the native bridge. This makes the fix work even if the newest web deployment is delayed.
+- Vercel reported `Deployment rate limited — retry in 24 hours.` for the newest web fullscreen commits, so the self-contained APK fallback intentionally removes immediate dependence on Vercel production.
+- The newer web implementation remains committed to both `develop` and `main`, with service-worker cache advanced to `statistics-lover-static-v5`; once Vercel can deploy again, the website and APK-native implementation converge on the same behavior.
+- Version advanced to versionCode 16 / versionName 1.0.15.
+- Signed Android workflow run `37147879248` succeeded end-to-end.
+- Release artifact ID: `11283006944`.
+- Published APK size: 644359 bytes.
+- Published APK SHA-256: `9107d99acf16a7101ac5c29236fac4d6a5a90822ece056a09c8cf597fc9ae818`.
+- Self-update metadata now advertises version 1.0.15.
