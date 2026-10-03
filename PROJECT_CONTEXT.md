@@ -76,3 +76,21 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Public Courses can be browsed before login; creating an order requires authentication.
 - Login copy and course-store copy were aligned with the web product language.
 - Immediate acceptance test: install the A4 APK and compare launch/home/navigation feel against the Statistics Lover mobile website.
+
+
+## Android checkpoint A5 — Stat Archive-style auto-update foundation
+
+- Ported the Stat Archive self-update pattern into the native Statistics Lover client.
+- App launch now checks repository-hosted `downloads/version.json` for a newer `versionCode`.
+- Update dialog supports Update/Later; update download runs off the UI thread and never blocks normal app startup if the check fails.
+- Downloaded APK is stored under private cache `updates/`, exposed only through AndroidX `FileProvider`, and installed through Android's package installer.
+- Android 8+ unknown-source permission flow is handled with `ACTION_MANAGE_UNKNOWN_APP_SOURCES`; returning to the app resumes installation.
+- Added `REQUEST_INSTALL_PACKAGES` and the update FileProvider path.
+- Added APK size and SHA-256 verification in addition to the Stat Archive baseline behavior.
+- App version advanced to versionCode 4 / versionName 1.0.3.
+- GitHub workflow now always builds/verifies/uploads the debug APK and is also prepared to build/publish a stable signed release update channel.
+- When signing is configured, the workflow publishes `downloads/statistics-lover.apk` and refreshes `downloads/version.json` automatically from the release build.
+- Required repository Actions secrets for stable release signing: `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`.
+- Current new repository does not yet have those release signing secrets; run `37133882202` passed the debug build and correctly skipped release publication.
+- This is intentional: Android package updates require the same persistent signing certificate. Fresh GitHub debug keys must not be used as an update channel.
+- Once signing secrets are configured, install the signed release APK once; subsequent higher-version signed releases can use the in-app update flow.
