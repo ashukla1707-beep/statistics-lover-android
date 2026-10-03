@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
 }
 
+val releaseKeystorePath = System.getenv("KEYSTORE_FILE")
+
 android {
     namespace = "com.statisticslover.app"
     compileSdk = 35
@@ -10,12 +12,23 @@ android {
         applicationId = "com.statisticslover.app"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.2-test"
+        versionCode = 4
+        versionName = "1.0.3"
     }
 
     buildFeatures {
         buildConfig = true
+    }
+
+    signingConfigs {
+        create("release") {
+            if (!releaseKeystorePath.isNullOrBlank()) {
+                storeFile = file(releaseKeystorePath)
+                storePassword = System.getenv("KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("KEY_ALIAS")
+                keyPassword = System.getenv("KEY_PASSWORD")
+            }
+        }
     }
 
     buildTypes {
@@ -25,6 +38,9 @@ android {
             versionNameSuffix = "-debug"
         }
         release {
+            if (!releaseKeystorePath.isNullOrBlank()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
