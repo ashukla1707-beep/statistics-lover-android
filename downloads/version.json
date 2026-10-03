@@ -1,8 +1,8 @@
 {
-  "versionCode": 12,
-  "versionName": "1.0.11",
+  "versionCode": 13,
+  "versionName": "1.0.12",
   "apkUrl": "https://raw.githubusercontent.com/ashukla1707-beep/statistics-lover-android/main/downloads/statistics-lover.apk",
-  "apkSizeBytes": 643155,
-  "sha256": "93bb981aac1e13859d9e85494418752ee2866a0febcac742dba76e2f6a38fb4b",
-  "message": "Statistics Lover 1.0.11 is available."
+  "apkSizeBytes": 643183,
+  "sha256": "3c8583567f7957db4ac2a48cb6c0bc7e52597200f3ead4ba938f19632b09279f",
+  "message": "Statistics Lover 1.0.12 is available."
 }
