@@ -51,9 +51,6 @@ public class NativeMainActivity extends AppCompatActivity {
 
     private WebView webView;
     private ProgressBar progressBar;
-    private String mobileUserAgent;
-    private boolean desktopUserAgentActive;
-    private boolean userAgentReloadInProgress;
     private View customView;
     private WebChromeClient.CustomViewCallback customViewCallback;
     private ValueCallback<Uri[]> filePathCallback;
@@ -135,10 +132,11 @@ public class NativeMainActivity extends AppCompatActivity {
         settings.setAllowContentAccess(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
-        mobileUserAgent = settings.getUserAgentString()
-                + " StatisticsLoverAndroid/"
-                + BuildConfig.VERSION_NAME;
-        settings.setUserAgentString(mobileUserAgent);
+        settings.setUserAgentString(
+                DESKTOP_USER_AGENT
+                        + " StatisticsLoverAndroid/"
+                        + BuildConfig.VERSION_NAME
+        );
 
         CookieManager cookies = CookieManager.getInstance();
         cookies.setAcceptCookie(true);
@@ -168,7 +166,6 @@ public class NativeMainActivity extends AppCompatActivity {
 
             @Override
             public void onPageFinished(WebView view, String url) {
-                userAgentReloadInProgress = false;
                 syncRecordingMode(url, false);
                 progressBar.setProgress(100);
                 progressBar.setVisibility(View.GONE);
@@ -280,27 +277,18 @@ public class NativeMainActivity extends AppCompatActivity {
     }
 
     private void syncRecordingMode(String url, boolean allowReload) {
-        boolean shouldUseDesktop = isRecordingUrl(url);
+        boolean recording = isRecordingUrl(url);
 
-        if (shouldUseDesktop) {
+        if (recording) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else if (customView == null) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         }
 
-        if (shouldUseDesktop == desktopUserAgentActive) return;
-
-        desktopUserAgentActive = shouldUseDesktop;
-        webView.getSettings().setUserAgentString(
-                shouldUseDesktop
-                        ? DESKTOP_USER_AGENT + " StatisticsLoverAndroid/" + BuildConfig.VERSION_NAME
-                        : mobileUserAgent
-        );
-
-        if (allowReload && !userAgentReloadInProgress) {
-            userAgentReloadInProgress = true;
-            webView.post(webView::reload);
-        }
+        // The APK uses a desktop Chrome user-agent from startup while keeping the
+        // real phone viewport width. This preserves the responsive mobile layout
+        // and lets Google Drive render its desktop-capable player immediately,
+        // avoiding the old route reload when "Watch recording" was tapped.
     }
 
     private void enterImmersiveLandscape() {
