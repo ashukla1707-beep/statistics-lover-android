@@ -94,3 +94,13 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Current new repository does not yet have those release signing secrets; run `37133882202` passed the debug build and correctly skipped release publication.
 - This is intentional: Android package updates require the same persistent signing certificate. Fresh GitHub debug keys must not be used as an update channel.
 - Once signing secrets are configured, install the signed release APK once; subsequent higher-version signed releases can use the in-app update flow.
+
+
+## A6 signing key generated
+
+- A permanent Statistics Lover Android release signing keystore has been generated outside GitHub and is **not committed to the repository**.
+- Release key alias: `statisticslover`.
+- Certificate SHA-256 fingerprint: `C4:7F:CF:18:41:93:14:B5:2C:76:A9:E3:A0:E5:F8:F4:E1:D0:80:3B:63:15:B8:B7:AB:D7:A3:BE:1D:B5:12:1F`.
+- Keystore file SHA-256: `7a9aec47a4666571dbc8f346424f96d0cf6331cbd97465afe402750223afc5b8`.
+- Required next action: add the generated values to GitHub Actions secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, and `KEY_PASSWORD`.
+- Never commit the keystore, passwords, or Base64 keystore value to Git. Losing or replacing this key would break Android's same-signing-certificate update chain for existing release installs.
