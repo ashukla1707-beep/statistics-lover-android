@@ -340,3 +340,20 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 644363 bytes.
 - Published APK SHA-256: `0b433ebe740ac7273c4ca39be70768a5b1368420c2b5ff624a506fb373bd9f96`.
 - Self-update metadata now advertises version 1.0.17.
+
+
+## Android checkpoint A17 — compact custom fullscreen controls
+
+- User reported that after the 1.0.17 rollback, tapping the Statistics Lover custom fullscreen button still produced Google Drive's large touch-oriented control panel, unlike the compact desktop-style appearance they expected from the earlier working state.
+- Verified that the 1.0.17 Android fullscreen source is byte-for-byte identical to the 1.0.15 Android fullscreen source, and the public production web alias is still serving the same web commit used during the 1.0.15 period. The remaining difference therefore comes from Google Drive's responsive iframe control layout/state when the iframe is expanded to the full landscape viewport.
+- Custom Statistics Lover fullscreen is retained.
+- Android's injected fullscreen fallback now renders Google Drive on a fixed 1024x576 desktop canvas and scales that canvas to fit the real landscape viewport. This keeps Drive in its compact desktop control layout while preserving the Statistics Lover custom fullscreen/exit button.
+- Native landscape/immersive mode remains controlled by the StatisticsLoverNative bridge.
+- Fullscreen scale is recalculated on entry, resize, and orientation changes.
+- Native safe-area padding is forced to zero while custom fullscreen is active and normal system-bar safe-area padding is restored on exit.
+- Version advanced to versionCode 19 / versionName 1.0.18.
+- Signed Android workflow run `37149458941` succeeded end-to-end.
+- Release artifact ID: `11283396630`.
+- Published APK size: 644767 bytes.
+- Published APK SHA-256: `24279baccbfbac8d5300ad5a18cf21bb38f58fe671860d70b14fe06d0b036bf1`.
+- Self-update metadata now advertises version 1.0.18.
