@@ -123,3 +123,21 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: `f688b24949c622648b0c4ab79eace13ad72250d56912dd62ca17ac1b5f37ff8b`.
 - Release artifact ID: `11280511616`.
 - This 1.0.4 signed release is the baseline install for the permanent in-app update chain. Future releases must use the same signing secrets and a higher versionCode.
+
+
+## Android checkpoint A7 — exact mobile web layout inside APK
+
+- User rejected the native approximation of the web layout and requested the APK to look exactly like the website in mobile mode.
+- Android shell now renders the actual Statistics Lover responsive web application inside the app's own WebView, with no browser address bar or external browser chrome.
+- Release/home URL: `https://hstatistics.workers.dev/`.
+- Normal Statistics Lover navigation remains inside the APK; external hosts such as Meet/Drive/payment/deep links open through Android handlers.
+- JavaScript, DOM storage, cookies, responsive viewport behavior, file chooser support, downloads/external-link routing, and browser-style back navigation are enabled.
+- `FLAG_SECURE` and the signed in-app updater remain active.
+- Version advanced to versionCode 6 / versionName 1.0.5.
+- Signed workflow run `37141381121` succeeded.
+- Release artifact ID: `11280836419`.
+- Published self-update metadata points to version 1.0.5.
+- Published APK size: 640287 bytes.
+- Published APK SHA-256: `6da11ed1a1af340931ca11ed57af59e16e3bebf7e592b21250479288db2b3f2f`.
+- CI publication race protection was added so stale concurrent builds cannot overwrite the newest update channel.
+- Acceptance target: the APK should visually match the Statistics Lover mobile website because it now uses the exact same responsive web UI rather than duplicating the design natively.
