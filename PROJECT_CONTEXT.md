@@ -261,3 +261,21 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 643183 bytes.
 - Published APK SHA-256: `3c8583567f7957db4ac2a48cb6c0bc7e52597200f3ead4ba938f19632b09279f`.
 - Self-update metadata now advertises version 1.0.12.
+
+
+## Android checkpoint A15 — remove intermediate recording layout/reload
+
+- User supplied a screen recording showing that tapping **Watch recording** first displayed the lecture route's `Loading recording…` state, then the page layout changed, and only afterwards did the Google Drive player appear.
+- Root cause: the Android WebView originally started with the normal mobile user-agent. Entering the lecture route then switched the WebView to a desktop Chrome user-agent required by Google Drive and reloaded the route. That user-agent transition created an unnecessary second page load and visible intermediate layout.
+- Verified the web application has no other mobile-user-agent-dependent behavior outside `LecturePlayerPage.tsx`; the responsive mobile layout is controlled by viewport/CSS.
+- Android fix: the WebView now uses the desktop Chrome user-agent plus the explicit `StatisticsLoverAndroid/<version>` marker from app startup.
+- Because the real phone viewport width is unchanged, the Statistics Lover UI remains in its responsive mobile layout while Google Drive receives the desktop-capable user-agent immediately.
+- Recording route detection now only controls screen-awake behavior; it no longer changes user-agent or reloads the WebView.
+- Result: tapping **Watch recording** should navigate once to the lecture page and load the player directly, without the previous mobile-UA → desktop-UA reload/layout transition.
+- Existing fullscreen rotation fix, native fullscreen/landscape behavior, safe-area handling, signed updater, and temporary screenshot/screen-recording support remain unchanged.
+- Version advanced to versionCode 14 / versionName 1.0.13.
+- Signed Android workflow run `37145903963` succeeded end-to-end.
+- Release artifact ID: `11281354398`.
+- Published APK size: 642963 bytes.
+- Published APK SHA-256: `3f9153ec6812c47b8c97d8a33f5b8a4198c85a560d895cc40b2806f3a3743489`.
+- Self-update metadata now advertises version 1.0.13.
