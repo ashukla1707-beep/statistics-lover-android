@@ -310,3 +310,19 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 644359 bytes.
 - Published APK SHA-256: `9107d99acf16a7101ac5c29236fac4d6a5a90822ece056a09c8cf597fc9ae818`.
 - Self-update metadata now advertises version 1.0.15.
+
+
+## Android checkpoint A16 — intermittent player layout race removed
+
+- User reported that lecture playback was generally working but sometimes the inline Google Drive control layout rendered incorrectly.
+- Root cause identified in the web player: the Android APK was still passing through the legacy touch-device 1024x576 scaling path. Depending on when the WebView/iframe finished measuring, Drive controls could be positioned using a stale `--drive-player-scale` value, producing an intermittent distorted/partial control layout.
+- Web fix committed to both Statistics Lover `develop` and `main`: Android is excluded from `syncTouchPlayerScale`, and Android-specific CSS uses the real player element size for both inline and custom fullscreen modes.
+- APK fix is self-contained as well: `NativeMainActivity` injects an Android-only CSS override into the WebView so the real-size player layout is enforced immediately even if production Vercel is still serving an older bundle.
+- Normal mobile-browser behavior is unchanged.
+- Custom Statistics Lover fullscreen, native Android fullscreen bridge, safe-area handling, screen-capture testing mode, recording playback, and signed updater remain in place.
+- Version advanced to versionCode 17 / versionName 1.0.16.
+- Signed Android workflow run `37148487788` succeeded end-to-end.
+- Release artifact ID: `11282559362`.
+- Published APK size: 644623 bytes.
+- Published APK SHA-256: `caf3be46c555a7f3ef2e8fc4240d415d4267a71d4224abe5109bbb0d7916065b`.
+- Self-update metadata now advertises version 1.0.16.
