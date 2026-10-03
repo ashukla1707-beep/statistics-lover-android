@@ -63,3 +63,16 @@ After device validation, continue the native teacher/admin edit workflows.
 ## Historical note
 
 A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shell. Their obsolete source files are intentionally not carried into this active repository because A3 replaced them with the true native client.
+
+
+## Interface checkpoint A4 — web-style native home
+
+- User rejected the initial A3 dashboard-first interface.
+- APK launch now opens a native public home screen modeled on the Statistics Lover web home rather than opening Login/Dashboard first.
+- The home screen mirrors the web hero, learning-area cards, course/free-content/test/PYQ messaging, and brand/tagline.
+- Mobile navigation now follows the web structure through a hamburger menu: Home, Courses, Free Content, Test Series, PYQs, Study Material, About, and Student Login/Dashboard.
+- Authenticated screens use a matching menu approach for Dashboard, My Courses, Notifications, My Orders, Courses, teacher/admin areas, and Logout; the earlier bottom navigation was removed.
+- The implementation remains fully native Android; no WebView was reintroduced.
+- Public Courses can be browsed before login; creating an order requires authentication.
+- Login copy and course-store copy were aligned with the web product language.
+- Immediate acceptance test: install the A4 APK and compare launch/home/navigation feel against the Statistics Lover mobile website.
