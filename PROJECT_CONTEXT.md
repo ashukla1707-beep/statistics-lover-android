@@ -279,3 +279,15 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 642963 bytes.
 - Published APK SHA-256: `3f9153ec6812c47b8c97d8a33f5b8a4198c85a560d895cc40b2806f3a3743489`.
 - Self-update metadata now advertises version 1.0.13.
+
+
+### A15 follow-up — Drive native fullscreen controls in APK
+
+- User reported that fullscreen video opened, but some Google Drive playback controls were missing/blank.
+- Root cause: the APK was using the Statistics Lover outer-stage custom fullscreen button. That made the outer stage fullscreen while Google Drive still considered itself an embedded desktop player, so parts of Drive's own control bar could render incorrectly.
+- Web player now suppresses the custom Statistics Lover fullscreen button when `StatisticsLoverAndroid/` is detected.
+- Inside the APK, fullscreen is now entered through Google Drive's own fullscreen control. Android `WebChromeClient` continues to handle the resulting fullscreen custom view, immersive system bars and landscape orientation.
+- The Statistics Lover logo overlay remains for the normal embedded player; Drive owns its own fullscreen control surface.
+- Service-worker cache advanced to `statistics-lover-static-v3` so the corrected player bundle replaces stale cached code.
+- Production deployment for web commit `ec07f4bce734a71a602595236f99f43d4ec70bb4` is READY on `statistics-lover.vercel.app`.
+- This is a web-layer fix and does not require a new APK version beyond 1.0.13; fully close/reopen the APK so the refreshed web bundle activates.
