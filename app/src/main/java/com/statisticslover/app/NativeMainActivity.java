@@ -21,6 +21,9 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -82,6 +85,17 @@ public class NativeMainActivity extends AppCompatActivity {
         );
         progressParams.gravity = android.view.Gravity.TOP;
         root.addView(progressBar, progressParams);
+
+        ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
+            Insets bars = insets.getInsets(
+                    WindowInsetsCompat.Type.statusBars()
+                            | WindowInsetsCompat.Type.navigationBars()
+                            | WindowInsetsCompat.Type.displayCutout()
+            );
+            view.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+            return insets;
+        });
+        ViewCompat.requestApplyInsets(root);
 
         setContentView(root);
         configureWebView();
