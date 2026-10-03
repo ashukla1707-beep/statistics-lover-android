@@ -205,3 +205,20 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 643151 bytes.
 - Published APK SHA-256: `ed939712f26d9a6000f989a2f5be42ba570f171a715c6b57749407761d6cd3a8`.
 - Self-update metadata now publishes version 1.0.9, so an installed signed 1.0.8 should be offered this update on launch.
+
+
+## Android checkpoint A12 — definitive recording gate bypass
+
+- User reported that even after 1.0.9 the lecture page still showed **Desktop playback required**.
+- Root cause identified: the web lecture page checks `navigator.userAgentData.mobile` before falling back to `navigator.userAgent`. Android WebView may continue reporting `mobile: true` even after the native shell switches to a desktop Chrome user agent, so the web gate still activated.
+- Web fix committed to both Statistics Lover `develop` and production `main`: the lecture page now checks for the explicit `StatisticsLoverAndroid/` app marker first and bypasses the mobile-browser gate inside the APK.
+- Android recording desktop user agent now preserves the same `StatisticsLoverAndroid/<version>` marker.
+- Normal mobile website visitors still receive the desktop-site gate; only the signed Android app bypasses it.
+- Production Vercel deployment for web commit `b45792a8d79a98d6aabbef5d51efc0454e4372fb` is READY and owns `statistics-lover.vercel.app`.
+- Web Quality run `37144132303` passed.
+- Android version advanced to versionCode 11 / versionName 1.0.10.
+- Signed Android workflow run `37144147948` succeeded end-to-end.
+- Release artifact ID: `11281048193`.
+- Published APK size: 643167 bytes.
+- Published APK SHA-256: `90ae77df5835673ffd2d1890eb4e3b14d491a178d8e7bf9005db63f10c3d5dc7`.
+- Self-update metadata now advertises 1.0.10.
