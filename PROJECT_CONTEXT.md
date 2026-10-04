@@ -870,3 +870,50 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
   - Drive seek/timeline stabilization;
   - permanent signing and auto-update lineage.
 - Do not treat 1.0.35 or earlier splash/logo builds as the active baseline unless explicitly rolling back for diagnosis.
+
+
+## CURRENT AUTHORITATIVE ANDROID BASELINE — Statistics Lover 1.0.38
+
+- **Statistics Lover 1.0.38 / versionCode 39** supersedes 1.0.37 and is the current authoritative Android baseline.
+- This checkpoint follows direct review of the user's screen recording showing both:
+  - a blank native/custom splash logo area; and
+  - a blank website header-logo slot after the page loaded.
+- Confirmed root cause in 1.0.37:
+  - Android `app/src/main/res/drawable-nodpi/statistics_lover_logo.jpg` used blob `ed914a2f95feed4c621066c93485e55c5241a5c4`;
+  - decoded bytes did **not** begin with JPEG SOI `FF D8` and contained no valid JPEG header;
+  - the same corrupt blob was also present on the production web `develop` branch at `public/brand/statistics-lover-logo.jpg` and `src/assets/statistics-lover-logo.jpg`;
+  - previous 1.0.37 context claims that this blob was a valid 1254×1254 image were incorrect and are superseded by this checkpoint.
+- Verified logo now used for the repair:
+  - historical validated Statistics Lover JPEG blob: `4af648e1fcba3aa00ec481101b05cbe36ebc7393`;
+  - valid JFIF/JPEG header;
+  - actual dimensions: **420×420**;
+  - size: **14997 bytes**.
+- Android repair source commit: `21936a84f2eec03febe48f23816801d893902390` — `fix: restore valid splash logo and align system splash 1.0.38`.
+- Android changes:
+  - replaced the corrupt packaged splash/logo binary with the verified 420×420 JPEG;
+  - system splash now uses `@drawable/statistics_lover_logo` instead of `@drawable/splash_blank`;
+  - custom splash continues to use the same verified logo;
+  - custom splash logo size normalized to 140dp;
+  - preserved existing auth-aware startup, website-style UI, stable production origin, recording startup, fullscreen, Drive seek and permanent signing/update behavior.
+- GitHub Actions run: **37190376246 — SUCCESS**.
+- Signed release build step: **SUCCESS**.
+- Signed release verification step: **SUCCESS**.
+- Self-update publication step: **SUCCESS**.
+- Release artifact ID: **11297594955**.
+- Published APK commit: `f83c2e3bd4981cb14b2e8993def58143fa9ecf1a` — `Publish Statistics Lover APK 1.0.38`.
+- Published APK size: **675386 bytes**.
+- Published APK SHA-256: **`151c0416e518787a808850097b4cfc19a4b2053b27bbda480f69a139b0d15be6`**.
+- Auto-update channel: **1.0.38 / versionCode 39**.
+- Production web/logo repair:
+  - Vercel deploys the `develop` branch for the active application flow;
+  - web fix commit: `3415a5aed797a123b533f912966e0acce828e5bc` — `fix: replace corrupt logo blobs and invalidate caches`;
+  - both public and bundled header-logo files were replaced with valid blob `4af648e1fcba3aa00ec481101b05cbe36ebc7393`;
+  - service-worker cache advanced to `statistics-lover-static-v12`;
+  - public logo references advanced to `?v=20261004-4`;
+  - manifest icon size metadata corrected to 420×420;
+  - Vercel deployment `dpl_44Pj3N988Gb3BkdSo5rdxnLJDg35` is **READY**;
+  - canonical APK/web origin `statistics-lover.vercel.app` was remapped from old deployment `dpl_GRwRhyfLRse6w7iSFyxvNjt3GirH` to the fixed deployment;
+  - live canonical HTML returns the new `?v=20261004-4` references and the live logo endpoint returns HTTP 200 with `image/jpeg`, JFIF bytes, and content-length 14997.
+- Verification boundary:
+  - repository asset integrity, Android build/signature workflow, auto-update publication, Vercel deployment and live served logo bytes are verified;
+  - final on-device visual confirmation of the native splash and rendered header logo is pending installation/opening of 1.0.38 by the user.
