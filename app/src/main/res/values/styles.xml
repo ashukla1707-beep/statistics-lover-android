@@ -12,7 +12,7 @@
 
     <style name="Theme.StatisticsLover.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/shell_background</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/statistics_lover_splash_hd_hd</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/statistics_lover_splash_hd</item>
         <item name="windowSplashScreenAnimationDuration">0</item>
         <item name="windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
         <item name="postSplashScreenTheme">@style/Theme.StatisticsLover</item>
