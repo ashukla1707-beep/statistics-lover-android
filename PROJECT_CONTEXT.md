@@ -583,3 +583,25 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: **`e98b55697aed956ab6e35af38008e939eb19c6583e21ef5dfd141b7042ade991`**
 - Auto-update channel is now **1.0.27 / versionCode 28**.
 - Existing compact landscape fullscreen, stable production origin/session continuity, file picker, external links and permanent signing certificate are preserved.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.29 Drive seek-control stabilization
+
+- User reported that tapping/dragging the Google Drive video time/progress line could leave the seek UI visually stuck even though the video continued to play.
+- Real-device evidence showed playback continuing underneath a pinned Drive seek/preview state.
+- Two causes were addressed together:
+  - desktop Google Drive controls on a touch device can retain a synthetic mouse/scrub hover state after `ACTION_UP`;
+  - transient fullscreen viewport resize events could re-scale the transformed 1024x576 player canvas during seek interaction, disrupting Drive's pointer state.
+- Source commits:
+  - `d07c1e475485827a63cba505bcf8eff287f1ee67` — after fullscreen touch release, explicitly clears Drive's stuck scrub state with a touch cancel plus mouse hover exit.
+  - `75df561f9414c4bff6d0812319584d21627bf199` — freezes compact fullscreen scale during normal resize events and re-syncs only on orientation changes.
+- Product/version: **Statistics Lover 1.0.29**
+- Android `versionCode`: **30**
+- GitHub Actions run: **37181709525 — SUCCESS**
+- Signed release artifact ID: **11295292272**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **655582 bytes**
+- Published APK SHA-256: **`6fd0353834cd513d2af8a61784add36e833e78f3f41c1b46a687a31212410751`**
+- Auto-update channel is now **1.0.29 / versionCode 30**.
+- Existing website-style UI, single-transition recording startup, stable production origin/session continuity, compact landscape fullscreen, permanent signing certificate and updater lineage are preserved.
