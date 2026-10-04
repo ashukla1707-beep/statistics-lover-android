@@ -146,7 +146,7 @@ public class NativeMainActivity extends AppCompatActivity {
         settings.setAllowContentAccess(true);
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportMultipleWindows(false);
-        websiteUserAgent = DESKTOP_USER_AGENT;
+        websiteUserAgent = settings.getUserAgentString();
         recordingUserAgent = DESKTOP_USER_AGENT
                 + " StatisticsLoverAndroid/"
                 + BuildConfig.VERSION_NAME;
