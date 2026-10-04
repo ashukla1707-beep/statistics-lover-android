@@ -1,3 +1,4 @@
+// 1.0.41 HD circular splash finalized
 plugins {
     id("com.android.application")
 }
