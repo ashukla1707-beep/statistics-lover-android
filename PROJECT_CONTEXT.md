@@ -799,3 +799,50 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
   - website uses `prefers-color-scheme: dark` overrides and light/dark theme-color metadata;
   - no manual device-specific theme fork is introduced; phone, tablet and desktop/browser follow the OS/browser preference automatically.
 - Existing website UI, auth-aware startup, stable session origin, recording startup, compact landscape fullscreen, fullscreen-exit and Drive seek fixes remain preserved.
+
+
+## CURRENT CHECKPOINT — splash/logo recovery and Android 1.0.37
+
+- User reported that the splash logo and website header logo were still missing after the earlier splash/theme revisions.
+- Full source audit was completed across:
+  - Android launcher manifest and theme;
+  - `NativeMainActivity`;
+  - splash resources and logo drawables;
+  - web Header component;
+  - service worker cache;
+  - public/bundled logo assets;
+  - recent GitHub Actions and Vercel deployment history.
+- Two concrete splash issues were identified:
+  1. the custom splash minimum-visible timer could expire while Android's system splash was still covering the Activity;
+  2. the splash ImageView used a transparent oval background with `clipToOutline`, which could make the logo disappear on-device even though the spinner/background remained visible.
+- Android splash timing/mask fix commit: `08f1612e1a1cdddba69dc214e00c2c60673905b4`.
+  - custom splash visibility timer now starts only after Android's system splash has actually exited;
+  - splash overlay is explicitly brought to front after system splash exit;
+  - circular mask now uses the theme-matched shell background instead of a fully transparent oval;
+  - custom circular logo size normalized to 164dp;
+  - WebView still fades in only after the web app signals readiness.
+- The repository logo copies were then found to be visually degraded despite larger pixel dimensions.
+- The clean original Statistics Lover image uploaded by the user in chat was recovered at **1254×1254** and is now the authoritative splash/header logo asset.
+- Android original-logo commit: `1b101de64428322554afe1f637c708d25ef54491`.
+- Product/version: **Statistics Lover 1.0.37**
+- Android `versionCode`: **38**
+- GitHub Actions run: **37189418107 — SUCCESS**
+- Signed release artifact ID: **11297979731**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **675774 bytes**
+- Published APK SHA-256: **`1ee53781bcd0e3375f4a458768c50c292d2cea97499e6de48de1a660c84a1415`**
+- Auto-update channel is now **1.0.37 / versionCode 38**.
+- Existing accepted behavior remains preserved:
+  - website-style UI inside APK;
+  - auth-aware startup;
+  - stable production session origin;
+  - single-transition recording startup;
+  - compact landscape fullscreen;
+  - inline-player fullscreen-exit stability;
+  - Drive seek/timeline stabilization;
+  - permanent signing/update lineage.
+- Latest signed artifact was downloaded into the active chat runtime as `Statistics-Lover-1.0.37-Release.zip`.
+- Important current status:
+  - Android 1.0.37 is verified and published.
+  - The matching web logo commit is separate and must be verified/deployed before claiming the website header-logo fix is live.
