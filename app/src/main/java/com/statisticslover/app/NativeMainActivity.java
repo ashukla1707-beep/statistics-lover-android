@@ -4,14 +4,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
-import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.view.View;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -28,8 +24,6 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -51,7 +45,6 @@ import java.util.regex.Pattern;
 
 public class NativeMainActivity extends AppCompatActivity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
-    private static final long MIN_SPLASH_VISIBLE_MS = 1000L;
     private static final Pattern RECORDING_ROUTE =
             Pattern.compile(".*/learn/[^/]+/lecture/[^/?#]+(?:[/?#].*)?$");
     private static final String DESKTOP_USER_AGENT =
@@ -65,7 +58,6 @@ public class NativeMainActivity extends AppCompatActivity {
     ));
 
     private FrameLayout root;
-    private FrameLayout launchOverlay;
     private WebView webView;
     private ProgressBar progressBar;
     private View customView;
@@ -74,30 +66,20 @@ public class NativeMainActivity extends AppCompatActivity {
     private AppUpdateManager updateManager;
     private boolean appFullscreen;
     private boolean webUiReady;
-    private boolean webReadyRequested;
-    private boolean systemSplashExited;
-    private boolean splashRevealScheduled;
-    private long launchOverlayShownAt;
 
     @Override
     protected void onCreate(Bundle state) {
         SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
-        splashScreen.setOnExitAnimationListener(provider -> {
-            provider.remove();
-            systemSplashExited = true;
-            launchOverlayShownAt = SystemClock.uptimeMillis();
-
-            if (launchOverlay != null) {
-                launchOverlay.setAlpha(1f);
-                launchOverlay.setVisibility(View.VISIBLE);
-                launchOverlay.bringToFront();
-                launchOverlay.invalidate();
-            }
-
-            if (webReadyRequested) {
-                revealWebContent();
-            }
-        });
+        // Keep one branded Android splash on screen until the web UI is ready.
+        // This replaces the old system-splash -> custom-overlay double transition.
+        splashScreen.setKeepOnScreenCondition(() -> !webUiReady);
+        splashScreen.setOnExitAnimationListener(provider ->
+                provider.getView().animate()
+                        .alpha(0f)
+                        .setDuration(160L)
+                        .withEndAction(provider::remove)
+                        .start()
+        );
         super.onCreate(state);
 
         // Normal app mode is portrait. Fullscreen playback temporarily overrides
@@ -146,7 +128,6 @@ public class NativeMainActivity extends AppCompatActivity {
         );
         progressParams.gravity = android.view.Gravity.TOP;
         root.addView(progressBar, progressParams);
-        addLaunchOverlay();
 
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
             Insets bars = insets.getInsets(
@@ -167,96 +148,15 @@ public class NativeMainActivity extends AppCompatActivity {
         configureWebView();
     }
 
-    private void addLaunchOverlay() {
-        launchOverlay = new FrameLayout(this);
-        launchOverlay.setBackgroundColor(getColor(R.color.shell_background));
-        launchOverlay.setClickable(true);
-
-        LinearLayout content = new LinearLayout(this);
-        content.setOrientation(LinearLayout.VERTICAL);
-        content.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
-
-        ImageView logo = new ImageView(this);
-        logo.setImageResource(R.drawable.statistics_lover_logo);
-        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-        GradientDrawable circle = new GradientDrawable();
-        circle.setShape(GradientDrawable.OVAL);
-        circle.setColor(getColor(R.color.shell_background));
-        logo.setBackground(circle);
-        logo.setClipToOutline(true);
-        logo.setElevation(dp(2));
-
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(dp(140), dp(140));
-        content.addView(logo, logoParams);
-
-        ProgressBar spinner = new ProgressBar(this);
-        spinner.setIndeterminate(true);
-        spinner.setIndeterminateTintList(
-                ColorStateList.valueOf(getColor(R.color.splash_spinner))
-        );
-        LinearLayout.LayoutParams spinnerParams = new LinearLayout.LayoutParams(dp(30), dp(30));
-        spinnerParams.topMargin = dp(22);
-        content.addView(spinner, spinnerParams);
-
-        FrameLayout.LayoutParams contentParams = new FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT
-        );
-        contentParams.gravity = android.view.Gravity.CENTER;
-        launchOverlay.addView(content, contentParams);
-
-        root.addView(
-                launchOverlay,
-                new FrameLayout.LayoutParams(
-                        FrameLayout.LayoutParams.MATCH_PARENT,
-                        FrameLayout.LayoutParams.MATCH_PARENT
-                )
-        );
-    }
-
     private void revealWebContent() {
         if (webUiReady) return;
-        webReadyRequested = true;
 
-        // The Android system splash sits above our Activity. Start the custom
-        // logo timer only after that system layer is actually gone; otherwise
-        // the minimum-visible time can expire while the logo is still hidden.
-        if (!systemSplashExited || launchOverlayShownAt <= 0L) {
-            return;
-        }
-
-        long elapsed = SystemClock.uptimeMillis() - launchOverlayShownAt;
-        long remaining = MIN_SPLASH_VISIBLE_MS - elapsed;
-        if (remaining > 0L) {
-            if (!splashRevealScheduled && root != null) {
-                splashRevealScheduled = true;
-                root.postDelayed(() -> {
-                    splashRevealScheduled = false;
-                    revealWebContent();
-                }, remaining);
-            }
-            return;
-        }
-
-        webUiReady = true;
-
+        // Make the page visible before releasing the Android splash so there is
+        // no intermediate blank frame.
         if (webView != null) {
-            webView.animate().alpha(1f).setDuration(180L).start();
+            webView.setAlpha(1f);
         }
-
-        if (launchOverlay != null) {
-            launchOverlay.animate()
-                    .alpha(0f)
-                    .setDuration(220L)
-                    .withEndAction(() -> {
-                        if (root != null && launchOverlay != null) {
-                            root.removeView(launchOverlay);
-                        }
-                        launchOverlay = null;
-                    })
-                    .start();
-        }
+        webUiReady = true;
     }
 
     private void applyAdaptiveSystemBars() {
