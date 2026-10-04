@@ -467,8 +467,21 @@ public class NativeMainActivity extends AppCompatActivity {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
         }
 
-        if (root != null) ViewCompat.requestApplyInsets(root);
-        queueWebViewportSync();
+        // Restore the proven compact-player exit behavior from 1.0.18.
+        // Android/WebView will deliver the real portrait viewport change itself.
+        // Do NOT synthesize delayed resize/orientationchange events here: Google
+        // Drive reacts to those late events by collapsing the inline video into
+        // a tiny preview after fullscreen exit.
+        if (root != null) {
+            root.post(() -> ViewCompat.requestApplyInsets(root));
+        }
+        if (webView != null) {
+            webView.post(() -> {
+                if (webView == null) return;
+                webView.requestLayout();
+                webView.invalidate();
+            });
+        }
 
         if (!isRecordingUrl(webView == null ? null : webView.getUrl())) {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -576,7 +589,16 @@ public class NativeMainActivity extends AppCompatActivity {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (root != null) ViewCompat.requestApplyInsets(root);
-        queueWebViewportSync();
+
+        // Reflow aggressively only while entering/remaining in our custom
+        // fullscreen. On portrait exit, the native viewport change is enough
+        // and avoids the late Google Drive inline-player collapse.
+        if (appFullscreen) {
+            queueWebViewportSync();
+        } else if (webView != null) {
+            webView.requestLayout();
+            webView.invalidate();
+        }
     }
 
     @Override
