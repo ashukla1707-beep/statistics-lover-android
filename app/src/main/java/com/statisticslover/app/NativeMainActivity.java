@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
 
 public class NativeMainActivity extends AppCompatActivity {
     private static final int FILE_CHOOSER_REQUEST = 4102;
-    private static final long MIN_SPLASH_VISIBLE_MS = 1300L;
+    private static final long MIN_SPLASH_VISIBLE_MS = 1000L;
     private static final Pattern RECORDING_ROUTE =
             Pattern.compile(".*/learn/[^/]+/lecture/[^/?#]+(?:[/?#].*)?$");
     private static final String DESKTOP_USER_AGENT =
@@ -74,12 +74,30 @@ public class NativeMainActivity extends AppCompatActivity {
     private AppUpdateManager updateManager;
     private boolean appFullscreen;
     private boolean webUiReady;
+    private boolean webReadyRequested;
+    private boolean systemSplashExited;
     private boolean splashRevealScheduled;
     private long launchOverlayShownAt;
 
     @Override
     protected void onCreate(Bundle state) {
-        SplashScreen.installSplashScreen(this);
+        SplashScreen splashScreen = SplashScreen.installSplashScreen(this);
+        splashScreen.setOnExitAnimationListener(provider -> {
+            provider.remove();
+            systemSplashExited = true;
+            launchOverlayShownAt = SystemClock.uptimeMillis();
+
+            if (launchOverlay != null) {
+                launchOverlay.setAlpha(1f);
+                launchOverlay.setVisibility(View.VISIBLE);
+                launchOverlay.bringToFront();
+                launchOverlay.invalidate();
+            }
+
+            if (webReadyRequested) {
+                revealWebContent();
+            }
+        });
         super.onCreate(state);
 
         // Normal app mode is portrait. Fullscreen playback temporarily overrides
@@ -150,7 +168,6 @@ public class NativeMainActivity extends AppCompatActivity {
     }
 
     private void addLaunchOverlay() {
-        launchOverlayShownAt = SystemClock.uptimeMillis();
         launchOverlay = new FrameLayout(this);
         launchOverlay.setBackgroundColor(getColor(R.color.shell_background));
         launchOverlay.setClickable(true);
@@ -165,12 +182,12 @@ public class NativeMainActivity extends AppCompatActivity {
 
         GradientDrawable circle = new GradientDrawable();
         circle.setShape(GradientDrawable.OVAL);
-        circle.setColor(Color.TRANSPARENT);
+        circle.setColor(getColor(R.color.shell_background));
         logo.setBackground(circle);
         logo.setClipToOutline(true);
-        logo.setElevation(dp(4));
+        logo.setElevation(dp(2));
 
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(dp(188), dp(188));
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(dp(164), dp(164));
         content.addView(logo, logoParams);
 
         ProgressBar spinner = new ProgressBar(this);
@@ -200,6 +217,14 @@ public class NativeMainActivity extends AppCompatActivity {
 
     private void revealWebContent() {
         if (webUiReady) return;
+        webReadyRequested = true;
+
+        // The Android system splash sits above our Activity. Start the custom
+        // logo timer only after that system layer is actually gone; otherwise
+        // the minimum-visible time can expire while the logo is still hidden.
+        if (!systemSplashExited || launchOverlayShownAt <= 0L) {
+            return;
+        }
 
         long elapsed = SystemClock.uptimeMillis() - launchOverlayShownAt;
         long remaining = MIN_SPLASH_VISIBLE_MS - elapsed;
