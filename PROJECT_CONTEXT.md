@@ -507,3 +507,26 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
   - this is the stable Vercel `develop` alias containing the homepage/header/footer/responsive fixes completed earlier in the project;
   - production `statistics-lover.vercel.app` is no longer used by this APK until the user explicitly promotes the current develop web build to production.
 - Existing package ID, permanent signing certificate and auto-update lineage remain unchanged, so signed 1.0.20–1.0.22 installs can update to 1.0.23 in-app.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.24 session-origin recovery
+
+- User reported that 1.0.23 behaved like a fresh web visit and asked for sign-in again.
+- Root cause: 1.0.23 changed the APK origin from `statistics-lover.vercel.app` to the `develop` Vercel hostname. Supabase/browser session storage is origin-scoped, so the existing app session could not be read on the new host.
+- Corrective strategy:
+  - restore the original stable web origin so existing WebView/Supabase session data remains available;
+  - launch directly at `https://statistics-lover.vercel.app/dashboard` instead of the public homepage;
+  - update the production Vercel alias itself to the current working develop deployment so the corrected homepage/UI lives on the same stable origin.
+- APK source commit: `253bc5650fe325a4d4fd83e70b854e8b8b18780e`.
+- Product/version: **Statistics Lover 1.0.24**
+- Android `versionCode`: **25**
+- GitHub Actions run: **37179541593 — SUCCESS**
+- Signed release artifact ID: **11294701290**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **644863 bytes**
+- Published APK SHA-256: **`d10e99dff759d5a60ab8dd47aa17f854047934a074edb8265da4c674cc9644d6`**
+- Auto-update channel is now **1.0.24 / versionCode 25**.
+- Vercel production alias `statistics-lover.vercel.app` was reassigned to deployment `dpl_BRMCC4xjefkc5DAowgaRgwyxBzUP`, which corresponds to the current working develop web bundle. Verification showed production and develop serving the same JS bundle `index-DC55xXSS.js`.
+- This keeps the old stable origin for stored login/session continuity while delivering the working homepage/header/footer/responsive fixes on that same origin.
+- Fullscreen behavior remains from 1.0.23: compact 1024x576 geometry, Statistics Lover custom fullscreen, and explicit landscape transition.
