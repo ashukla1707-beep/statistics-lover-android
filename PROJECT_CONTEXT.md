@@ -997,3 +997,38 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: **`538a4f086dcedb690cdf012777fbb32d2d4caa98e4d1bfe5dd53f6770ac935d6`**.
 - Auto-update channel: **1.0.40 / versionCode 41**.
 - Final on-device confirmation of the new splash framing is still required after installation.
+
+
+## CURRENT AUTHORITATIVE ANDROID BASELINE — Statistics Lover 1.0.41
+
+- **Statistics Lover 1.0.41 / versionCode 42** supersedes 1.0.40 as the current authoritative Android baseline.
+- This release is the completed high-quality splash correction requested after the user supplied the original Statistics Lover logo.
+- Working 1.0.40 behavior was intentionally preserved; the change is limited to the splash asset/package path plus release verification plumbing.
+- Final splash asset:
+  - dedicated committed resource: `app/src/main/res/drawable-nodpi/statistics_lover_splash_hd.webp`;
+  - high-quality circular Statistics Lover artwork;
+  - padded specifically for Android splash safe-area masking;
+  - no rounded-square framing;
+  - no reuse of the old low-resolution/corrupt JPEG splash source.
+- Splash theme uses `@drawable/statistics_lover_splash_hd`.
+- Final packaging clean-up:
+  - removed temporary Base64 staging files;
+  - removed fragile APK ZIP filename-grep verification that falsely failed after Android resource shrinking/renaming;
+  - committed the actual binary resource directly into the Android source tree;
+  - fixed an intermediate accidental `statistics_lover_splash_hd_hd` XML reference before final release.
+- Final source/publish sequence:
+  - `c792e3cb8d7fb2d6fd1f0476292149dc9222651c` — finalized HD splash packaging;
+  - `32f632ee3a6880114f62f7f8c157eaacbfa4422d` / follow-up no-op duplicate — corrected splash resource reference;
+  - `afa64a91b4315537ee35bcfd2dcde0f1b821aefe` — forced clean head build for publication;
+  - `ae3f0f7dd8b6c8398db8dd743a171be223912680` — `Publish Statistics Lover APK 1.0.41`.
+- Final GitHub Actions run: **37196318084 — SUCCESS**.
+- Committed HD splash verification: **SUCCESS**.
+- Debug build and verification: **SUCCESS**.
+- Signed release build and APK signature verification: **SUCCESS**.
+- Release artifact upload: **SUCCESS**.
+- Self-update publication: **SUCCESS**.
+- Auto-update channel: **1.0.41 / versionCode 42**.
+- Published APK size: **703351 bytes**.
+- Published APK SHA-256: **`69c31479d1eed910e71ee838023446dd00c08fb52a433c75d399c6dd9f8e3c31`**.
+- Final release artifact ID: **11300433697**.
+- On-device visual confirmation of the new circular splash is the only remaining verification step.
