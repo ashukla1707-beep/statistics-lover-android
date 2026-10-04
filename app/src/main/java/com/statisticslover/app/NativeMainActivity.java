@@ -494,8 +494,7 @@ public class NativeMainActivity extends AppCompatActivity {
                 + "if(stage){stage.classList.remove('lecture-player-stage-app-fullscreen');stage.style.removeProperty('--sl-native-fs-scale');}"
                 + "clean();var b=document.querySelector('.lecture-player-fullscreen');setButton(b,false);"
                 + "});"
-                + "window.addEventListener('resize',function(){setTimeout(resync,0);setTimeout(resync,120);});"
-                + "window.addEventListener('orientationchange',function(){setTimeout(resync,80);setTimeout(resync,220);setTimeout(resync,420);});"
+                + "window.addEventListener('orientationchange',function(){setTimeout(resync,100);setTimeout(resync,260);setTimeout(resync,460);});"
                 + "})();";
 
         webView.evaluateJavascript(script, null);
