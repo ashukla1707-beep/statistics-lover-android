@@ -61,6 +61,25 @@ When the user says **“rebuild the working APK,” “rebuild from 1.0.15,” �
 
 **This pinned rebuild baseline takes precedence over later historical checkpoints below when choosing where to restart Android APK development.**
 
+## VERIFIED REBUILD — Statistics Lover 1.0.20
+
+- Rebuilt from the pinned **1.0.15 runtime behavior**; later 1.0.16–1.0.18 player-layout/scaling experiments were removed.
+- Product/version: **Statistics Lover 1.0.20**
+- Android `versionCode`: **21**
+- Runtime restore commit: `a50b564ff70cfee515e55fa5ba11dc6d12b4c174`
+- Release source commit: `7fff278316d50bf6ea3970f6d90ea52316acf8fc`
+- GitHub Actions run: **37175526613 — SUCCESS**
+- Release artifact ID: **11292129608**
+- Signed APK verification step: **PASSED**
+- Self-update publication step: **PASSED**
+- Release APK size: **644359 bytes**
+- Release APK SHA-256: **`67827ccf3f11abd963383f23c9d170dc8affc5bdf8bb0723110acb614f81bd3b`**
+- Auto-update channel: **1.0.20 / versionCode 21**
+- Package ID remains `com.statisticslover.app` and the permanent signing key was preserved.
+- Public app URL remains `https://statistics-lover.vercel.app/`.
+- This is the current verified installable rebuild when the user asks for the recovered working APK.
+
+
 ## Historical direction — A3 true native client (superseded)
 
 This section records the earlier A3 native-client phase only. It is **not** the current APK rebuild direction. For current rebuild work, use the pinned **Statistics Lover 1.0.15 / versionCode 16** baseline above.
