@@ -105,7 +105,9 @@ jobs:
           APKSIGNER="$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools" -type f -name apksigner 2>/dev/null | sort -V | tail -n1)"
           test -n "$APKSIGNER"
           "$APKSIGNER" verify --verbose "$APK"
-          unzip -l "$APK" | grep -E 'statistics_lover_splash_hd'
+          AAPT2="$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools" -type f -name aapt2 2>/dev/null | sort -V | tail -n1)"
+          test -n "$AAPT2"
+          "$AAPT2" dump resources "$APK" | grep -F 'statistics_lover_splash_hd'
 
       - name: Upload release APK
         if: steps.signing.outputs.ready == 'true'
