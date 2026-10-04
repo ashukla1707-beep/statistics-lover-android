@@ -605,3 +605,17 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: **`6fd0353834cd513d2af8a61784add36e833e78f3f41c1b46a687a31212410751`**
 - Auto-update channel is now **1.0.29 / versionCode 30**.
 - Existing website-style UI, single-transition recording startup, stable production origin/session continuity, compact landscape fullscreen, permanent signing certificate and updater lineage are preserved.
+
+
+## Web-delivered startup behavior for installed APKs
+
+- Current signed APK baseline remains **Statistics Lover 1.0.29 / versionCode 30**; no Android rebuild was needed for this change.
+- 1.0.29 already launches the stable origin root: `https://statistics-lover.vercel.app/`.
+- Web commit `d12f60e5b2258021d72179aa2ffad47f8c2a86c5` now makes the APK root auth-aware:
+  - no persisted session -> Home;
+  - authenticated session -> Dashboard;
+  - suspended account -> Account suspended.
+- The decision waits for Supabase session hydration, so signed-in users do not flash the public Home page first.
+- APK detection uses the always-present `StatisticsLoverNative` JavaScript bridge, not the Android UA marker.
+- Browser users at `/` still receive the normal Home page.
+- Production Vercel origin was updated to deployment `dpl_9gqkdAYqoHbvaeoY3LG3gKNVK4Sq`; production and preview both serve bundle `index-DUc0RxZf.js`.
