@@ -452,3 +452,27 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
   - WebView layout/resize/orientation events are re-synchronized several times through the rotation transition so the Drive iframe receives the final landscape viewport.
   - Immersive system bars are re-applied when window focus returns.
 - Existing package ID and permanent signing certificate were preserved; installed 1.0.20 release builds can receive 1.0.21 through the existing in-app updater.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.22 compact fullscreen geometry
+
+- User clarified the target with two screenshots: the undesired fullscreen was the stretched desktop Drive interface; the desired fullscreen is the compact 16:9 Drive layout with smaller controls matching the stable 1.0.18-era presentation.
+- Root cause of the undesired first screenshot: 1.0.21 deliberately stretched the Drive iframe and overlay to the full Android fullscreen viewport at 100% width/height. That made Google Drive render its large desktop control layout.
+- Fix source commit: `100b1e582da341d6cd153b9d183296a78ae3d28f`.
+- Product/version: **Statistics Lover 1.0.22**
+- Android `versionCode`: **23**
+- GitHub Actions run: **37178429643 — SUCCESS**
+- Signed release artifact ID: **11294076787**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **644751 bytes**
+- Published APK SHA-256: **`65b0b90f9db13dd55ff162079db6f1ae390e7c0286db99a074f07907d61586d8`**
+- Auto-update channel is now **1.0.22 / versionCode 23**.
+- Fullscreen layout behavior:
+  - Keeps the 1.0.21 native rotation, safe-area, WebView reflow, signing and updater fixes.
+  - Restores the proven compact player geometry from the 1.0.18 fullscreen implementation.
+  - Drive iframe uses a fixed 1024x576 canvas and scales uniformly to fit the available fullscreen viewport instead of stretching.
+  - The Statistics Lover overlay is scaled with the same canvas so the custom fullscreen button and logo remain aligned with the Drive player.
+  - Scale is recalculated on resize/orientation events and again during the transition.
+  - The custom button remains the user-facing fullscreen control.
+- Existing package ID and permanent signing certificate remain unchanged; signed 1.0.20/1.0.21 installs can receive 1.0.22 through the existing in-app updater.
