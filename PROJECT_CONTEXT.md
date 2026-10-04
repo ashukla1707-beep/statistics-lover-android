@@ -1032,3 +1032,35 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: **`69c31479d1eed910e71ee838023446dd00c08fb52a433c75d399c6dd9f8e3c31`**.
 - Final release artifact ID: **11300433697**.
 - On-device visual confirmation of the new circular splash is the only remaining verification step.
+
+
+## CURRENT AUTHORITATIVE ANDROID BASELINE — Statistics Lover 1.0.41
+
+- **Statistics Lover 1.0.41 / versionCode 42** supersedes 1.0.40 and is the current authoritative Android baseline.
+- Scope of this release is intentionally limited to the splash image. The working 1.0.40 launcher icon, website/header logo, routing, WebView behavior, fullscreen behavior, auth/startup logic, production origin and update flow are unchanged.
+- User supplied the original Statistics Lover circular logo and requested a high-quality truly circular splash.
+- Final splash resource:
+  - path: `app/src/main/res/drawable-nodpi/statistics_lover_splash_hd.webp`;
+  - dimensions: **384×384 RGBA**;
+  - transparent canvas;
+  - circular emblem alpha bounds: **(67, 67)–(317, 317)**, i.e. 250×250 content centered on the 384×384 canvas (~65% width) to stay within Android splash safe-area masking;
+  - file size: **30312 bytes**;
+  - SHA-256: **`f33020e716bb1e7d71b4a95f04886277bb12170dc7ee355d80a1a3a30ede22f1`**.
+- Splash theme now resolves `windowSplashScreenAnimatedIcon` to `@drawable/statistics_lover_splash_hd`.
+- Release build integrity safeguards:
+  - workflow verifies the committed HD splash SHA-256 before building;
+  - signed APK verification uses Android APK Signature Scheme v2;
+  - `aapt2 dump resources` verifies that the compiled APK contains `drawable/statistics_lover_splash_hd` and that `windowSplashScreenAnimatedIcon` resolves to it.
+- Final successful GitHub Actions run: **37196318084 — SUCCESS**.
+- Final source/build head: `afa64a91b4315537ee35bcfd2dcde0f1b821aefe` — `ci: publish finalized 1.0.41 splash build`.
+- Published APK commit: `ae3f0f7dd8b6c8398db8dd743a171be223912680` — `Publish Statistics Lover APK 1.0.41`.
+- Release artifact ID: **11300433697**.
+- Published APK size: **703351 bytes**.
+- Published APK SHA-256: **`69c31479d1eed910e71ee838023446dd00c08fb52a433c75d399c6dd9f8e3c31`**.
+- Auto-update channel: **1.0.41 / versionCode 42**.
+- Post-build binary verification:
+  - downloaded the final signed release artifact;
+  - Android resource optimizer renamed the splash file internally to `res/Td.webp`;
+  - extracted `res/Td.webp` is **30312 bytes**, **384×384 RGBA**, alpha bounds **(67,67)–(317,317)**;
+  - its SHA-256 is exactly **`f33020e716bb1e7d71b4a95f04886277bb12170dc7ee355d80a1a3a30ede22f1`**, proving the approved circular splash was packaged byte-for-byte into the final signed APK.
+- Final on-device visual confirmation remains the only pending check after the user installs/opens 1.0.41.
