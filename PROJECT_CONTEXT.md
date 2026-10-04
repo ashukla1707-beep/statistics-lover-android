@@ -972,3 +972,28 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
   - production JS header uses `brand-logo` with bundled asset `/assets/statistics-lover-logo-clean-Dqadk_XN.jpg`;
   - bundled asset returns HTTP 200, `image/jpeg`, content-length 13085 and JFIF bytes.
 - Final on-device visual confirmation is still required after the user installs/opens 1.0.39; repository, build, signing, binary image decoding, website deployment and live asset serving are verified.
+
+
+## CURRENT AUTHORITATIVE ANDROID BASELINE — Statistics Lover 1.0.40
+
+- **Statistics Lover 1.0.40 / versionCode 41** supersedes 1.0.39 as the current authoritative Android baseline.
+- This is a splash-only refinement based on direct review of the user's latest recording.
+- All other 1.0.39 behavior remains intentionally unchanged: launcher icon, website header logo, routing, WebView behavior, fullscreen behavior, update flow, auth/startup logic and production origin.
+- Recording-confirmed issue in 1.0.39:
+  - Android's system splash masked/cropped the square Statistics Lover logo to the Android splash-icon safe area;
+  - the outer circular ring and lower/side logo artwork were visibly cut.
+- Fix:
+  - added dedicated `@drawable/statistics_lover_splash`;
+  - the splash drawable uses a larger transparent canvas with the clean Statistics Lover logo inset and centered;
+  - `windowSplashScreenAnimatedIcon` now references the dedicated splash drawable instead of using the application logo directly;
+  - app icon continues to use `@drawable/statistics_lover_logo` unchanged.
+- Android source commit: `f61d4d53af1dffc9029794b37790cc57c60f65a3` — `fix: keep full logo inside Android splash safe area 1.0.40`.
+- GitHub Actions run: **37192632223 — SUCCESS**.
+- Debug build and verification: **SUCCESS**.
+- Signed release build and verification: **SUCCESS**.
+- Self-update publication: **SUCCESS**.
+- Release artifact ID: **11300090265**.
+- Published APK size: **673362 bytes**.
+- Published APK SHA-256: **`538a4f086dcedb690cdf012777fbb32d2d4caa98e4d1bfe5dd53f6770ac935d6`**.
+- Auto-update channel: **1.0.40 / versionCode 41**.
+- Final on-device confirmation of the new splash framing is still required after installation.
