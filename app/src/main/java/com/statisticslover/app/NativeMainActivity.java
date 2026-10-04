@@ -104,11 +104,6 @@ public class NativeMainActivity extends AppCompatActivity {
         root.addView(progressBar, progressParams);
 
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, insets) -> {
-            if (appFullscreen) {
-                view.setPadding(0, 0, 0, 0);
-                return insets;
-            }
-
             Insets bars = insets.getInsets(
                     WindowInsetsCompat.Type.statusBars()
                             | WindowInsetsCompat.Type.navigationBars()
@@ -349,22 +344,16 @@ public class NativeMainActivity extends AppCompatActivity {
                 + "s.id='sl-native-fullscreen-style';"
                 + "s.textContent='"
                 + ".lecture-player-stage.lecture-player-stage-app-fullscreen{position:fixed!important;inset:0!important;z-index:2147483000!important;width:100dvw!important;height:100dvh!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;border:0!important;border-radius:0!important;background:#000!important;box-shadow:none!important;overflow:hidden!important;}"
-                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-media{position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;width:1024px!important;height:576px!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;transform:translate(-50%,-50%) scale(var(--sl-native-fs-scale,1))!important;transform-origin:center center!important;will-change:transform!important;}"
-                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-media iframe{width:1024px!important;height:576px!important;}"
-                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-overlay{position:absolute!important;inset:auto!important;left:50%!important;top:50%!important;width:1024px!important;height:576px!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;transform:translate(-50%,-50%) scale(var(--sl-native-fs-scale,1))!important;transform-origin:center center!important;will-change:transform!important;z-index:40!important;}"
-                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-fullscreen{right:27px!important;bottom:17px!important;width:52px!important;height:52px!important;border-radius:8px!important;background:#2b2b2b!important;box-shadow:none!important;}"
-                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-drive-brand-blocker{top:4px!important;right:4px!important;width:96px!important;height:96px!important;padding:4px!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-media{position:absolute!important;inset:0!important;left:0!important;top:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;transform:none!important;will-change:auto!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-media iframe{width:100%!important;height:100%!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-overlay{position:absolute!important;inset:0!important;left:0!important;top:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;aspect-ratio:auto!important;transform:none!important;will-change:auto!important;z-index:40!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-fullscreen{right:18px!important;bottom:18px!important;width:48px!important;height:48px!important;border-radius:10px!important;background:rgba(0,0,0,.72)!important;box-shadow:0 3px 12px rgba(0,0,0,.3)!important;}"
+                + ".lecture-player-stage.lecture-player-stage-app-fullscreen .lecture-player-drive-brand-blocker{top:12px!important;right:12px!important;width:64px!important;height:64px!important;transform:none!important;}"
                 + "';"
                 + "document.head.appendChild(s);"
                 + "function setButton(b,on){"
                 + "b.setAttribute('aria-label',on?'Exit full screen':'Enter full screen');"
                 + "b.setAttribute('title',on?'Exit full screen':'Full screen');"
-                + "}"
-                + "function syncScale(stage){"
-                + "if(!stage||!stage.classList.contains('lecture-player-stage-app-fullscreen'))return;"
-                + "var w=Math.max(window.innerWidth||0,1),h=Math.max(window.innerHeight||0,1);"
-                + "var scale=Math.max(Math.min(w/1024,h/576),0.1);"
-                + "stage.style.setProperty('--sl-native-fs-scale',String(scale));"
                 + "}"
                 + "document.addEventListener('click',function(e){"
                 + "var b=e.target&&e.target.closest?e.target.closest('.lecture-player-fullscreen'):null;"
@@ -374,7 +363,6 @@ public class NativeMainActivity extends AppCompatActivity {
                 + "e.preventDefault();e.stopPropagation();if(e.stopImmediatePropagation)e.stopImmediatePropagation();"
                 + "var on=!stage.classList.contains('lecture-player-stage-app-fullscreen');"
                 + "stage.classList.toggle('lecture-player-stage-app-fullscreen',on);"
-                + "if(on){syncScale(stage);requestAnimationFrame(function(){syncScale(stage);});setTimeout(function(){syncScale(stage);},180);}else{stage.style.removeProperty('--sl-native-fs-scale');}"
                 + "document.documentElement.style.overflow=on?'hidden':'';"
                 + "document.body.style.overflow=on?'hidden':'';"
                 + "setButton(b,on);"
@@ -387,9 +375,6 @@ public class NativeMainActivity extends AppCompatActivity {
                 + "document.documentElement.style.overflow='';document.body.style.overflow='';"
                 + "var b=document.querySelector('.lecture-player-fullscreen');if(b)setButton(b,false);"
                 + "});"
-                + "function resync(){var stage=document.querySelector('.lecture-player-stage-app-fullscreen');if(stage)syncScale(stage);}"
-                + "window.addEventListener('resize',resync);"
-                + "window.addEventListener('orientationchange',function(){setTimeout(resync,120);setTimeout(resync,360);});"
                 + "})();";
 
         webView.evaluateJavascript(script, null);
@@ -398,11 +383,6 @@ public class NativeMainActivity extends AppCompatActivity {
     private void enterImmersiveLandscape() {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        if (webView != null && webView.getParent() instanceof View) {
-            View root = (View) webView.getParent();
-            root.setPadding(0, 0, 0, 0);
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             WindowInsetsController controller = getWindow().getInsetsController();
@@ -431,11 +411,6 @@ public class NativeMainActivity extends AppCompatActivity {
             }
         } else {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
-        }
-
-        if (webView != null && webView.getParent() instanceof View) {
-            View root = (View) webView.getParent();
-            root.post(() -> ViewCompat.requestApplyInsets(root));
         }
 
         if (!isRecordingUrl(webView == null ? null : webView.getUrl())) {
