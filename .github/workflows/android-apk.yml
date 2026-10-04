@@ -10,7 +10,6 @@ on:
       - "build.gradle.kts"
       - "settings.gradle.kts"
       - "gradle.properties"
-      - "asset-staging/final-splash.part*.b64"
       - ".github/workflows/android-apk.yml"
 
 permissions:
@@ -38,14 +37,6 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.10.2"
-
-      - name: Restore verified splash asset
-        shell: bash
-        run: |
-          mkdir -p app/src/main/res/drawable-nodpi
-          cat asset-staging/final-splash.part*.b64 | tr -d '\r\n' | base64 --decode > app/src/main/res/drawable-nodpi/statistics_lover_splash_hd.webp
-          echo "f33020e716bb1e7d71b4a95f04886277bb12170dc7ee355d80a1a3a30ede22f1  app/src/main/res/drawable-nodpi/statistics_lover_splash_hd.webp" | sha256sum -c -
-          file app/src/main/res/drawable-nodpi/statistics_lover_splash_hd.webp
 
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
