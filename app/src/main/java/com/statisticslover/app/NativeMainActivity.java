@@ -187,7 +187,7 @@ public class NativeMainActivity extends AppCompatActivity {
         logo.setClipToOutline(true);
         logo.setElevation(dp(2));
 
-        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(dp(164), dp(164));
+        LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(dp(140), dp(140));
         content.addView(logo, logoParams);
 
         ProgressBar spinner = new ProgressBar(this);
