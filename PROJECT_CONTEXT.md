@@ -726,3 +726,37 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Self-update publication: **PASSED**.
 - Auto-update channel is now **1.0.32 / versionCode 33**.
 - Do not reintroduce the 1.0.31 native splash/theme changes until 1.0.32 is confirmed opening correctly on-device. Reintroduce future native theming in isolated increments only.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.34 unified splash + adaptive theme
+
+- User confirmed the duplicate splash/logo issue remained after 1.0.32: Android first showed a zoomed/masked system-splash logo, then the custom circular logo; the Android logo was also visibly soft.
+- 1.0.32 intentionally restored the known-opening 1.0.30 startup after 1.0.31 failed to open on-device. This also restored the old duplicate system-splash logo and 240x240 Android logo.
+- 1.0.34 fixes those two issues **without reintroducing the 1.0.31 launcher/theme architecture**:
+  - keeps the exact single-Activity startup flow proven by 1.0.32;
+  - Android system splash now uses a transparent 1dp drawable and zero icon animation, so the system splash is background-only;
+  - the Statistics Lover logo appears only once, in the native loading overlay;
+  - Android logo asset is the validated 420x420 original from the web project (blob `4af648e1fcba3aa00ec481101b05cbe36ebc7393`);
+  - overlay uses `FIT_CENTER`, transparent circular clipping, and no crop/zoom.
+- Theme handling is resource-based and deliberately narrow:
+  - light shell/splash/system bars: `#F7F8FB`;
+  - dark shell/splash/system bars: `#0B1020`;
+  - light/dark system-bar icon appearance is controlled through resource booleans;
+  - spinner uses `#C6005A` light and `#FF5397` dark;
+  - no `values-night/styles.xml` override is used;
+  - a small runtime refresh reapplies those resources on `uiMode` changes while preserving the working Activity architecture.
+- The website already follows `prefers-color-scheme` for phone/tablet/desktop and production is serving the dark-mode-capable bundle `index-DaYV35YY.js`.
+- Source commits:
+  - `f3b4121e7cbf5fd5e83b9110f2d51981b04f19b5` — unified splash assets/theme resources;
+  - `2663cb82dd320eb4d2b945faaa12b2c216ea1195` — safe live light/dark system-bar refresh;
+  - `a7ca7352ce8eedb530f6d9cdaca5a27d6f150f98` — final release bump.
+- Product/version: **Statistics Lover 1.0.34**
+- Android `versionCode`: **35**
+- GitHub Actions run: **37186374672 — SUCCESS**
+- Signed release artifact ID: **11296689615**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **672938 bytes**
+- Published APK SHA-256: **`9bb92f9cc7a9557cb0aea70a2c239f3338b894419c65b929298e329cd5838a55`**
+- Auto-update channel is now **1.0.34 / versionCode 35**.
+- Existing auth-aware startup, website UI, session continuity, single-transition recording startup, compact landscape fullscreen, inline-player exit and Drive seek fixes remain preserved.
