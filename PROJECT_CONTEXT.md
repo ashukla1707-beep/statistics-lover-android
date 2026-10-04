@@ -11,6 +11,56 @@
 - Source documentation head at split: `0149b12b4c691e2fb179c0f863f1ff4bf6aa66af`.
 - The original Statistics Lover web repository was intentionally left untouched during migration.
 
+## PINNED REBUILD BASELINE — Statistics Lover 1.0.15
+
+**This is the canonical Android rebuild starting point unless the user explicitly asks for a later version.**
+
+- Product/version: **Statistics Lover 1.0.15**
+- Android `versionCode`: **16**
+- Android source commit / workflow HEAD: `bdf050481bbd80a36c974a55ca159174aedf2c34`
+- Release commit message: `release: self-contained custom fullscreen fix 1.0.15`
+- `app/build.gradle.kts` blob at baseline: `08a0a439954efcc4cab9387cef169aee8d708550`
+- `NativeMainActivity.java` blob at baseline: `b273ad430c8d30817bb4bbe067c3c058c07e9ff8`
+- Android APK workflow blob at baseline: `56e6ed286f7f672a1ea1f02f15825ea6f3cc931c`
+- GitHub Actions release run: **`37147879248` — SUCCESS**
+- Release artifact ID: `11283006944`
+- Signature verification: **PASSED**
+- Published release APK size: **644359 bytes**
+- Published APK SHA-256: **`9107d99acf16a7101ac5c29236fac4d6a5a90822ece056a09c8cf597fc9ae818`**
+- Auto-update channel at that checkpoint: **1.0.15**
+- Public app URL configured in the APK: `https://statistics-lover.vercel.app/`
+- Production web commit associated with the working 1.0.15 period: `f309490f75ec004815f19abe2e17c7b7f7d9b471` (`fix: restore Statistics Lover custom fullscreen in Android`).
+
+### What 1.0.15 contains
+
+- Exact responsive Statistics Lover mobile web UI inside the APK WebView.
+- Permanent release signing and self-update support.
+- Android status/navigation-bar safe-area handling.
+- Screenshots and screen recording temporarily allowed.
+- Desktop-capable Chrome user agent from app startup so Google Drive recording playback does not require a second reload.
+- Statistics Lover custom fullscreen button retained.
+- Self-contained native fullscreen fallback injected by `NativeMainActivity`.
+- `StatisticsLoverNative` JavaScript bridge for fullscreen enter/exit.
+- Native sensor-landscape + immersive bars in fullscreen and portrait restoration on exit.
+- Android Back exits custom fullscreen first.
+- Recording route keeps the screen awake.
+- This version predates the later 1.0.16–1.0.18 player-layout/scaling experiments.
+
+### Rebuild rule
+
+When the user says **“rebuild the working APK,” “rebuild from 1.0.15,” “go back to the good version,”** or otherwise refers to this pinned baseline:
+
+1. Start Android source from commit `bdf050481bbd80a36c974a55ca159174aedf2c34`.
+2. Preserve the same package ID: `com.statisticslover.app`.
+3. Preserve the same permanent signing key. GitHub Actions expects the existing repository secrets `KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, and `KEY_PASSWORD`. **Do not rotate the signing key.**
+4. Use the baseline `.github/workflows/android-apk.yml` behavior unless an explicitly requested change requires otherwise.
+5. For a new installable release based on this code, increase `versionCode` above every already-published build while keeping the **1.0.15 source behavior** as the functional baseline.
+6. Do **not** carry forward the later 1.0.16, 1.0.17, or 1.0.18 player-layout/scaling experiments unless the user explicitly asks for one of those changes.
+7. Use the published 1.0.15 APK hash above as the reference artifact identity. A future rebuild with a higher versionCode will naturally have a different SHA-256.
+8. If exact 1.0.15 runtime behavior must also be reproduced, remember that the APK loads the live web app; use/restore the compatible production web behavior associated with commit `f309490f75ec004815f19abe2e17c7b7f7d9b471` or keep the APK's self-contained fullscreen fallback authoritative.
+
+**This pinned rebuild baseline takes precedence over later historical checkpoints below when choosing where to restart Android APK development.**
+
 ## Current direction — A3 true native client
 
 The earlier A1/A2 WebView-based approaches were rejected. The active direction is a true native Android client.
