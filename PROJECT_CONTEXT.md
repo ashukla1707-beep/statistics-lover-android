@@ -426,3 +426,29 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK size: 644767 bytes.
 - Published APK SHA-256: `24279baccbfbac8d5300ad5a18cf21bb38f58fe671860d70b14fe06d0b036bf1`.
 - Self-update metadata now advertises version 1.0.18.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.21 fullscreen stabilization
+
+- User supplied a real-device screen recording showing the custom fullscreen transition rotating into a sideways/narrow player, briefly tearing during orientation change, and settling with portrait-style geometry/system-bar space instead of a stable landscape fullscreen.
+- Root cause: the Statistics Lover custom fullscreen bridge and Google Drive's own iframe/WebChromeClient custom-view fullscreen could both become fullscreen/orientation owners. The native shell also retained normal safe-area padding while immersive bars were being hidden, and the sensor-landscape mode could flip during the transition.
+- Fix source commit: `c84fda9f4a44ad0d891ee6ec129a02f22e57d433`.
+- Product/version: **Statistics Lover 1.0.21**
+- Android `versionCode`: **22**
+- GitHub Actions run: **37177622093 — SUCCESS**
+- Signed release artifact ID: **11293579153**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **644607 bytes**
+- Published APK SHA-256: **`0ebef70a62cf5066494caabee8c057fb4e7a65472f99fcae213825919e700495`**
+- Auto-update channel is now **1.0.21 / versionCode 22**.
+- Fullscreen behavior changes:
+  - Statistics Lover custom fullscreen is the only authoritative fullscreen path.
+  - Google Drive nested `WebChromeClient` custom-view fullscreen requests are rejected to prevent mixed fullscreen states.
+  - The injected fallback no longer capture-blocks the React fullscreen click; it acts only as a backup if the live page does not apply its fullscreen class.
+  - In app fullscreen, the custom control occupies the Drive fullscreen hit area so only one fullscreen control is practically available.
+  - Fullscreen uses fixed landscape instead of sensor-landscape to avoid orientation flips during transition.
+  - Native safe-area padding is removed while fullscreen is active and restored on exit.
+  - WebView layout/resize/orientation events are re-synchronized several times through the rotation transition so the Drive iframe receives the final landscape viewport.
+  - Immersive system bars are re-applied when window focus returns.
+- Existing package ID and permanent signing certificate were preserved; installed 1.0.20 release builds can receive 1.0.21 through the existing in-app updater.
