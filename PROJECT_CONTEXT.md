@@ -556,3 +556,30 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Stable app origin remains `https://statistics-lover.vercel.app/`, preserving existing WebView/Supabase session storage.
 - Fullscreen behavior remains the compact landscape implementation established in 1.0.22–1.0.24.
 - The prior 1.0.25 build is superseded because it still relied on the web bundle being redeployed before the Android-specific UI switch would disappear.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.27 single-transition recording startup
+
+- User supplied the same class of real-device recording startup problem previously fixed at Android checkpoint A15: tapping **Watch recording** showed multiple intermediate loading/layout states before Google Drive playback appeared.
+- Historical fix recovered from commit `293b1a2e88f4667173f04d4fa8e48d5e4e05578b` / release 1.0.13:
+  - the WebView must use the Drive-capable desktop user-agent from app startup;
+  - entering a lecture route must **not** change user-agent and must **not** reload the route.
+- 1.0.26 had reintroduced the old A15 failure mode by switching user-agent when entering/leaving the recording route.
+- 1.0.27 restores the A15 single-navigation model while preserving the user's newer requirement that normal APK screens look like the website:
+  - actual WebView/network UA is desktop Chrome + `StatisticsLoverAndroid/<version>` from startup, so Google Drive is ready immediately;
+  - a document-start JavaScript mask dynamically hides the Android marker from normal website routes;
+  - the marker is exposed to page JavaScript only when the current pathname is a lecture route;
+  - therefore normal pages render the website UI, while the lecture page still recognizes native Android integration/fullscreen;
+  - recording route detection now controls screen-awake/fullscreen state only and never changes UA or calls `loadUrl`.
+- This removes the extra mobile-UA → desktop-UA route reload responsible for the repeated loading/layout transition. The remaining Google Drive iframe loading indicator is provider loading, not a second Statistics Lover page reload.
+- Source commit: `84384549591f3e98c8c4342a98e5ae1900d03cc6`.
+- Product/version: **Statistics Lover 1.0.27**
+- Android `versionCode`: **28**
+- GitHub Actions run: **37180641112 — SUCCESS**
+- Signed release artifact ID: **11294579346**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **655138 bytes**
+- Published APK SHA-256: **`e98b55697aed956ab6e35af38008e939eb19c6583e21ef5dfd141b7042ade991`**
+- Auto-update channel is now **1.0.27 / versionCode 28**.
+- Existing compact landscape fullscreen, stable production origin/session continuity, file picker, external links and permanent signing certificate are preserved.
