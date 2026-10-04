@@ -700,3 +700,29 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: **`4dc85506f5576cd6351dc1ffb9d76c78f5711a4368932c60677b091697459f48`**
 - Auto-update channel is now **1.0.31 / versionCode 32**.
 - Existing auth-aware startup routing, website-style UI, session continuity, single-transition recording startup, compact landscape fullscreen, inline-player exit behavior and Drive seek-control stabilization remain preserved.
+
+
+## RECOVERY RELEASE — Statistics Lover 1.0.32 startup rollback
+
+- User reported that the app stopped opening after the 1.0.31 unified splash/native theme release.
+- 1.0.31 compiled and signed successfully, so the failure was treated as a runtime startup regression.
+- Recovery strategy: restore the exact known-working native startup/splash implementation from Android 1.0.30 while preserving the existing web deployment, package ID, signing certificate, updater lineage, recording/fullscreen fixes, seek-control fixes and auth-aware `/app-start` route.
+- Restored from known-good source commit `72adfccf12f2e288e7c6b2f005e7ca12255f173b`:
+  - `NativeMainActivity.java`
+  - Android manifest launcher configuration
+  - splash theme resources
+  - original splash overlay behavior
+  - pre-1.0.31 logo resource
+- Removed the 1.0.31 `values-night/styles.xml` native theme override and manual native system-bar theme code from the recovery build.
+- Web light/dark theme deployment remains untouched; only the Android-native startup/theme experiment was rolled back.
+- Recovery source commit: `93f09e2040d92b0cef02010c27b1895df00aff97`.
+- Product/version: **Statistics Lover 1.0.32**
+- Android `versionCode`: **33**
+- GitHub Actions run: **37185313234 — SUCCESS**
+- Signed release artifact ID: **11296617602**
+- Signed release APK size: **669694 bytes**
+- Signed release APK SHA-256: **`9f9d75b65ee75f7f9a4d0384cbb5047783d67c24720e039a4dedf89cf8e42211`**
+- Signature verification: **PASSED**.
+- Self-update publication: **PASSED**.
+- Auto-update channel is now **1.0.32 / versionCode 33**.
+- Do not reintroduce the 1.0.31 native splash/theme changes until 1.0.32 is confirmed opening correctly on-device. Reintroduce future native theming in isolated increments only.
