@@ -530,3 +530,29 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Vercel production alias `statistics-lover.vercel.app` was reassigned to deployment `dpl_BRMCC4xjefkc5DAowgaRgwyxBzUP`, which corresponds to the current working develop web bundle. Verification showed production and develop serving the same JS bundle `index-DC55xXSS.js`.
 - This keeps the old stable origin for stored login/session continuity while delivering the working homepage/header/footer/responsive fixes on that same origin.
 - Fullscreen behavior remains from 1.0.23: compact 1024x576 geometry, Statistics Lover custom fullscreen, and explicit landscape transition.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.26 website UI inside APK
+
+- User clarified that the APK must render the **same responsive website UI** and must not substitute a separate Android-specific header/bottom-navigation interface.
+- Root cause of the unwanted UI: the APK sent `StatisticsLoverAndroid/<version>` in its user-agent on every page. The web app used that marker to render `AndroidAppHeader` and `AndroidBottomNav` instead of the normal website `Header` and `Footer`.
+- Correct architecture:
+  - ordinary APK pages use the WebView's normal mobile website user-agent and therefore render the same responsive web UI as a browser;
+  - only the recording route switches to the desktop Chrome + `StatisticsLoverAndroid/<version>` marker needed by the Google Drive player and native fullscreen bridge;
+  - leaving the recording route switches the user-agent back to normal website mode;
+  - native Android remains responsible only for the thin shell: session-preserving WebView, updates, file picker, external-link routing, system insets and recording fullscreen/orientation.
+- Source commits:
+  - `ce99c08224bbb3dc45799abb44995190d02428de` — route-scoped Android integration mode + version 1.0.26.
+  - `db01d079bbbf4c7c0c6f3e4df3e0a3de08cff185` — ordinary pages use the real responsive WebView/mobile user-agent.
+- Product/version: **Statistics Lover 1.0.26**
+- Android `versionCode`: **27**
+- GitHub Actions run: **37180060760 — SUCCESS**
+- Signed release artifact ID: **11294094436**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **645119 bytes**
+- Published APK SHA-256: **`b9fa02ead68b6db5f044ee330a99d9df64f6fef25cabc961c74bf756707bde42`**
+- Auto-update channel is now **1.0.26 / versionCode 27**.
+- Stable app origin remains `https://statistics-lover.vercel.app/`, preserving existing WebView/Supabase session storage.
+- Fullscreen behavior remains the compact landscape implementation established in 1.0.22–1.0.24.
+- The prior 1.0.25 build is superseded because it still relied on the web bundle being redeployed before the Android-specific UI switch would disappear.
