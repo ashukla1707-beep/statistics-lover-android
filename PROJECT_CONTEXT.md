@@ -917,3 +917,58 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Verification boundary:
   - repository asset integrity, Android build/signature workflow, auto-update publication, Vercel deployment and live served logo bytes are verified;
   - final on-device visual confirmation of the native splash and rendered header logo is pending installation/opening of 1.0.38 by the user.
+
+
+## CURRENT AUTHORITATIVE ANDROID BASELINE — Statistics Lover 1.0.39
+
+- **Statistics Lover 1.0.39 / versionCode 40** supersedes 1.0.38 and is the current authoritative Android baseline.
+- This checkpoint follows direct frame-by-frame review of user recording `1000327059.mp4`.
+- Recording-confirmed failures in 1.0.38:
+  - launcher icon was still the old chart vector;
+  - Android displayed a separate chart-style system splash before the intended loading screen;
+  - the custom circular splash showed a blank circle/spinner instead of the logo;
+  - the website header showed a blank circular logo slot.
+- Root-cause correction:
+  - the 420×420 JPEG blob `4af648e1fcba3aa00ec481101b05cbe36ebc7393` had a JPEG/JFIF header but the actual packaged file was structurally damaged;
+  - strict decoding of the 1.0.38 APK copy failed in PIL with `broken data stream` and OpenCV could not decode it;
+  - tolerant preview renderers could display it, which previously caused the asset to be incorrectly treated as healthy;
+  - the clean pre-corruption 240×240 JPEG blob `86549c806ec54b82cbe8765082cffcc7a0a4c28f` is now the authoritative logo source until a new higher-resolution original is supplied.
+- Startup architecture was simplified from two visible layers to one:
+  - removed the custom Android launch overlay, spinner and `clipToOutline` logo rendering path;
+  - Android `SplashScreen` is now the only startup splash;
+  - `setKeepOnScreenCondition(() -> !webUiReady)` holds that single branded splash until the web UI is ready;
+  - the WebView is made visible before the splash is released, avoiding an intermediate blank frame;
+  - splash exit uses only a short fade;
+  - no second circular splash exists after the Android splash.
+- App icon:
+  - `android:icon` and `android:roundIcon` now point directly to `@drawable/statistics_lover_logo`;
+  - the old chart `ic_launcher.xml` is no longer used by the application manifest.
+- Android source commits:
+  - `ca7bd80b5bf79065abb4befeb8446538c1471f30` — `fix: single branded splash and logo launcher icon 1.0.39`;
+  - `6937acad9c4a39e90bf689b114edc7822c0d1578` — `fix: complete single-splash cleanup 1.0.39`.
+- First 1.0.39 build attempt `37192026139` failed because two old-overlay references remained; the exact compiler failures were corrected before release.
+- Final GitHub Actions run: **37192112231 — SUCCESS**.
+- Debug build and verification: **SUCCESS**.
+- Signed release build: **SUCCESS**.
+- Signed release verification: **SUCCESS**.
+- Self-update publication: **SUCCESS**.
+- Release artifact ID: **11298779778**.
+- Auto-update channel: **1.0.39 / versionCode 40**.
+- Published APK size: **672758 bytes**.
+- Published APK SHA-256: **`5ed9be4333eb88950c0cd05c8dfe444fe0e0ff4dc9511ab303206c02ff1a3b82`**.
+- Binary verification performed on the signed release artifact:
+  - packaged logo entry is 13085 bytes;
+  - JFIF baseline JPEG, actual dimensions 240×240;
+  - PIL strict decode: **PASSED**;
+  - OpenCV decode: **PASSED**.
+- Matching web/header repair:
+  - web `develop` commit `faa50b124acbed7c48fa02aef3dbdba54e8decad` — `fix: replace damaged logo with clean cached-safe asset`;
+  - new public/header asset name: `statistics-lover-logo-clean.jpg`;
+  - service-worker cache: `statistics-lover-static-v13`;
+  - cache-bust generation: `?v=20261004-5`;
+  - Vercel deployment `dpl_C3iFuqcRcwxsuxugG5zxcCwU9ZA6` is READY;
+  - canonical `statistics-lover.vercel.app` is mapped to that deployment;
+  - live HTML references the clean logo;
+  - production JS header uses `brand-logo` with bundled asset `/assets/statistics-lover-logo-clean-Dqadk_XN.jpg`;
+  - bundled asset returns HTTP 200, `image/jpeg`, content-length 13085 and JFIF bytes.
+- Final on-device visual confirmation is still required after the user installs/opens 1.0.39; repository, build, signing, binary image decoding, website deployment and live asset serving are verified.
