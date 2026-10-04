@@ -61,9 +61,9 @@ When the user says **“rebuild the working APK,” “rebuild from 1.0.15,” �
 
 **This pinned rebuild baseline takes precedence over later historical checkpoints below when choosing where to restart Android APK development.**
 
-## Current direction — A3 true native client
+## Historical direction — A3 true native client (superseded)
 
-The earlier A1/A2 WebView-based approaches were rejected. The active direction is a true native Android client.
+This section records the earlier A3 native-client phase only. It is **not** the current APK rebuild direction. For current rebuild work, use the pinned **Statistics Lover 1.0.15 / versionCode 16** baseline above.
 
 - Launcher flow: `SplashActivity -> NativeMainActivity`.
 - The Statistics Lover website is not loaded inside an Android WebView.
