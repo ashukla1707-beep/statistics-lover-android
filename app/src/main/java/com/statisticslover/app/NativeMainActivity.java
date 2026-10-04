@@ -4,6 +4,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
+import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -101,7 +102,7 @@ public class NativeMainActivity extends AppCompatActivity {
         root = new FrameLayout(this);
 
         webView = new WebView(this);
-        webView.setBackgroundColor(0xFFF7F8FB);
+        webView.setBackgroundColor(getColor(R.color.shell_background));
         webView.setAlpha(0f);
         root.addView(
                 webView,
@@ -146,7 +147,7 @@ public class NativeMainActivity extends AppCompatActivity {
 
     private void addLaunchOverlay() {
         launchOverlay = new FrameLayout(this);
-        launchOverlay.setBackgroundColor(Color.rgb(247, 248, 251));
+        launchOverlay.setBackgroundColor(getColor(R.color.shell_background));
         launchOverlay.setClickable(true);
 
         LinearLayout content = new LinearLayout(this);
@@ -155,20 +156,23 @@ public class NativeMainActivity extends AppCompatActivity {
 
         ImageView logo = new ImageView(this);
         logo.setImageResource(R.drawable.statistics_lover_logo);
-        logo.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        logo.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
         GradientDrawable circle = new GradientDrawable();
         circle.setShape(GradientDrawable.OVAL);
-        circle.setColor(Color.WHITE);
+        circle.setColor(Color.TRANSPARENT);
         logo.setBackground(circle);
         logo.setClipToOutline(true);
-        logo.setElevation(dp(6));
+        logo.setElevation(dp(4));
 
         LinearLayout.LayoutParams logoParams = new LinearLayout.LayoutParams(dp(188), dp(188));
         content.addView(logo, logoParams);
 
         ProgressBar spinner = new ProgressBar(this);
         spinner.setIndeterminate(true);
+        spinner.setIndeterminateTintList(
+                ColorStateList.valueOf(getColor(R.color.splash_spinner))
+        );
         LinearLayout.LayoutParams spinnerParams = new LinearLayout.LayoutParams(dp(30), dp(30));
         spinnerParams.topMargin = dp(22);
         content.addView(spinner, spinnerParams);
