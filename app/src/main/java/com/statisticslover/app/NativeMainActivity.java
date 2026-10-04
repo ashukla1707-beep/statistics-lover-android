@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.View;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -192,7 +193,6 @@ public class NativeMainActivity extends AppCompatActivity {
 
         if (root != null) root.setBackgroundColor(background);
         if (webView != null) webView.setBackgroundColor(background);
-        if (launchOverlay != null) launchOverlay.setBackgroundColor(background);
     }
 
     private void configureWebView() {
