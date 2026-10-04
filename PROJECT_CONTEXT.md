@@ -657,3 +657,46 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: **`d4f21fa5e1c14b337c0880948e0a1adafe4ad83421b183fa4afe95625dd7ca5b`**
 - Auto-update channel is now **1.0.30 / versionCode 31**.
 - Existing website UI, session origin, single-transition recording startup, compact landscape fullscreen, Drive seek fixes, permanent signing certificate and updater lineage are preserved.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.31 unified splash + system theme
+
+- User supplied screenshots showing two different splash states:
+  - Android system splash first displayed a zoomed/masked rounded-square crop of the logo;
+  - custom native overlay then switched to a different circular logo presentation.
+- User also reported poor logo quality and requested automatic light/dark theme behavior across app, tablet and web.
+- Logo fidelity:
+  - project history contained an earlier validated original logo at **420x420**;
+  - the current web/Android logo had been reduced to **240x240**;
+  - restored the 420x420 original blob `4af648e1fcba3aa00ec481101b05cbe36ebc7393`.
+- Splash architecture:
+  - Android system SplashScreen now uses a transparent 1dp icon on the theme background, so it no longer shows a competing/masked logo;
+  - the Statistics Lover logo appears only once in the native WebView loading overlay;
+  - overlay uses `FIT_CENTER` instead of `CENTER_CROP`, preserving the full circular badge without zoom/crop;
+  - circular clipping, subtle border and smaller 176dp presentation improve sharpness;
+  - existing WebView/splash fade handoff remains.
+- Native theme:
+  - light mode uses `#F7F8FB` for splash/window/status/navigation backgrounds with dark system-bar icons;
+  - dark mode uses `#0B1020` with light system-bar icons;
+  - added `values-night/styles.xml`;
+  - native shell background, WebView background, splash overlay and spinner automatically follow `Configuration.UI_MODE_NIGHT`;
+  - system theme is re-applied on `uiMode` configuration changes.
+- Web theme:
+  - web commit `f973e87514b4df8c6efabb1bcb23689d2bdbffac` adds automatic `prefers-color-scheme` styling for public, auth, student, admin, commerce, learning and notification surfaces;
+  - restored the same 420x420 original logo on web;
+  - service-worker cache advanced to `statistics-lover-static-v8`;
+  - theme-color meta tags now provide separate light/dark browser chrome colors;
+  - Vercel deployment `dpl_Cfeg8GzJYRGoi2uHfyo6j1a3anU8` is READY and assigned to `statistics-lover.vercel.app`;
+  - production `/` and `/app-start` both serve bundle `index-DaYV35YY.js`;
+  - Quality run `37184284499` passed.
+- Android source commit: `7c7a6b34f13980af62c7f51c05b10acd6621e410`.
+- Product/version: **Statistics Lover 1.0.31**
+- Android `versionCode`: **32**
+- GitHub Actions run: **37184367615 — SUCCESS**
+- Signed release artifact ID: **11296217436**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **672466 bytes**
+- Published APK SHA-256: **`4dc85506f5576cd6351dc1ffb9d76c78f5711a4368932c60677b091697459f48`**
+- Auto-update channel is now **1.0.31 / versionCode 32**.
+- Existing auth-aware startup routing, website-style UI, session continuity, single-transition recording startup, compact landscape fullscreen, inline-player exit behavior and Drive seek-control stabilization remain preserved.
