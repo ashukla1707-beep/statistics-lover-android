@@ -846,3 +846,27 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Important current status:
   - Android 1.0.37 is verified and published.
   - The matching web logo commit is separate and must be verified/deployed before claiming the website header-logo fix is live.
+
+
+## CURRENT AUTHORITATIVE ANDROID BASELINE — Statistics Lover 1.0.37
+
+- **Statistics Lover 1.0.37 / versionCode 38** is the current authoritative Android baseline.
+- Dedicated Android source commit: `1b101de64428322554afe1f637c708d25ef54491`.
+- GitHub Actions Android run: **37189418107 — SUCCESS**.
+- Signed release artifact ID: **11297979731**.
+- Signed APK verification: **PASSED** (APK Signature Scheme v2).
+- Self-update publication: **PASSED**.
+- Published APK size: **675774 bytes**.
+- Published APK SHA-256: **`1ee53781bcd0e3375f4a458768c50c292d2cea97499e6de48de1a660c84a1415`**.
+- Auto-update channel: **1.0.37 / versionCode 38**.
+- Authoritative logo source for Android splash: the clean original **1254×1254** Statistics Lover logo recovered from the user-provided image, not the degraded repository copy used in older builds.
+- Keep all previously accepted behavior intact when making future Android changes:
+  - website-style UI inside APK;
+  - auth-aware startup;
+  - stable production/session origin;
+  - single-transition recording startup;
+  - compact landscape fullscreen;
+  - fullscreen-exit stability;
+  - Drive seek/timeline stabilization;
+  - permanent signing and auto-update lineage.
+- Do not treat 1.0.35 or earlier splash/logo builds as the active baseline unless explicitly rolling back for diagnosis.
