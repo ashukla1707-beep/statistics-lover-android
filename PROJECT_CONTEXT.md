@@ -619,3 +619,41 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - APK detection uses the always-present `StatisticsLoverNative` JavaScript bridge, not the Android UA marker.
 - Browser users at `/` still receive the normal Home page.
 - Production Vercel origin was updated to deployment `dpl_9gqkdAYqoHbvaeoY3LG3gKNVK4Sq`; production and preview both serve bundle `index-DUc0RxZf.js`.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.30 smooth auth-aware launch + circular splash
+
+- User requested three connected launch/navigation corrections:
+  - cold app launch should transition smoothly while the website/session is loading;
+  - signed-out launch -> Home, signed-in launch -> Dashboard;
+  - tapping **Home** from the website menu must always show Home even when signed in.
+- Web startup routing was separated from normal Home navigation:
+  - APK cold start now uses the dedicated route `/app-start`;
+  - `/app-start` waits for Supabase session hydration, then routes authenticated -> `/dashboard`, suspended -> `/account-suspended`, anonymous -> `/`;
+  - normal `/` is always the real Home page, so the menu's Home link no longer redirects authenticated users to Dashboard.
+- Web commit: `f874aad193f934a098c94ffb688bb66692504d72`.
+- Web Quality run: `37183208568 — SUCCESS`.
+- Vercel deployment: `dpl_8j8Fbyyfna9woyqwe2tbTuSk7PCH` — READY and assigned to `statistics-lover.vercel.app`.
+- Android launch was changed from two Activities to a single launcher Activity:
+  - the obsolete 350 ms `SplashActivity` handoff was removed;
+  - `NativeMainActivity` now owns the Android SplashScreen API directly;
+  - the WebView starts loading immediately behind a native splash overlay instead of waiting for a second Activity;
+  - the overlay remains visible until the web app calls `StatisticsLoverNative.appReady()` after auth-aware routing and page rendering;
+  - a 10-second fallback prevents a stale/old web bundle from leaving the splash permanently visible.
+- Splash branding:
+  - uses the existing Statistics Lover logo asset from the web repository; no generated replacement artwork is used;
+  - the native overlay clips the logo to a true circular outline;
+  - the logo is centered on the same light splash background with a small loading indicator;
+  - WebView content fades in (180 ms) while the circular splash fades out (220 ms), eliminating the blank/rough transition.
+- Android `APP_URL` is now `https://statistics-lover.vercel.app/app-start`.
+- Android source commit: `72adfccf12f2e288e7c6b2f005e7ca12255f173b`.
+- Product/version: **Statistics Lover 1.0.30**
+- Android `versionCode`: **31**
+- GitHub Actions run: **37183354378 — SUCCESS**
+- Signed release artifact ID: **11296375705**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **669698 bytes**
+- Published APK SHA-256: **`d4f21fa5e1c14b337c0880948e0a1adafe4ad83421b183fa4afe95625dd7ca5b`**
+- Auto-update channel is now **1.0.30 / versionCode 31**.
+- Existing website UI, session origin, single-transition recording startup, compact landscape fullscreen, Drive seek fixes, permanent signing certificate and updater lineage are preserved.
