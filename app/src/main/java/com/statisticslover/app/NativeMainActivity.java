@@ -87,6 +87,7 @@ public class NativeMainActivity extends AppCompatActivity {
         // Do not set FLAG_SECURE here while this mode is enabled.
         updateManager = new AppUpdateManager(this);
         buildWebShell();
+        applyAdaptiveSystemBars();
         configureBackNavigation();
 
         if (state == null) {
@@ -213,6 +214,42 @@ public class NativeMainActivity extends AppCompatActivity {
                     })
                     .start();
         }
+    }
+
+    private void applyAdaptiveSystemBars() {
+        if (appFullscreen) return;
+
+        int background = getColor(R.color.shell_background);
+        boolean lightBars = getResources().getBoolean(R.bool.light_system_bars);
+
+        getWindow().setStatusBarColor(background);
+        getWindow().setNavigationBarColor(background);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowInsetsController controller = getWindow().getInsetsController();
+            if (controller != null) {
+                int mask = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                        | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
+                controller.setSystemBarsAppearance(lightBars ? mask : 0, mask);
+            }
+        } else {
+            int flags = getWindow().getDecorView().getSystemUiVisibility();
+            flags &= ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                flags &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
+            if (lightBars && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+            }
+            if (lightBars && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+            }
+            getWindow().getDecorView().setSystemUiVisibility(flags);
+        }
+
+        if (root != null) root.setBackgroundColor(background);
+        if (webView != null) webView.setBackgroundColor(background);
+        if (launchOverlay != null) launchOverlay.setBackgroundColor(background);
     }
 
     private void configureWebView() {
@@ -764,6 +801,7 @@ public class NativeMainActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        applyAdaptiveSystemBars();
         if (root != null) ViewCompat.requestApplyInsets(root);
 
         // Reflow aggressively only while entering/remaining in our custom
