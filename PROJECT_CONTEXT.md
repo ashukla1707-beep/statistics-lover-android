@@ -760,3 +760,42 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
 - Published APK SHA-256: **`9bb92f9cc7a9557cb0aea70a2c239f3338b894419c65b929298e329cd5838a55`**
 - Auto-update channel is now **1.0.34 / versionCode 35**.
 - Existing auth-aware startup, website UI, session continuity, single-transition recording startup, compact landscape fullscreen, inline-player exit and Drive seek fixes remain preserved.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.35 visible splash + restored header logo
+
+- User supplied a real-device launch recording showing two regressions after the 1.0.34 theme/splash work:
+  - no visible Statistics Lover splash logo during cold launch (only the adaptive shell background appeared);
+  - the website header rendered the Statistics Lover text/tagline but not the circular logo.
+- Root causes:
+  - the native launch overlay could receive `StatisticsLoverNative.appReady()` and fade out before Android's blank system splash had finished, so the custom circular logo never became visible;
+  - the header still used the service-worker-cached public logo request, while the logo asset had been replaced during the fidelity work.
+- Android fix commit: `fade6a561dbbd4420a5440f689b24f8f93de170c`.
+- Product/version: **Statistics Lover 1.0.35**
+- Android `versionCode`: **36**
+- GitHub Actions run: **37187831151 — SUCCESS**
+- Signed release artifact ID: **11298046692**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **673018 bytes**
+- Published APK SHA-256: **`18837a88c4c313238d5f0a28c4cbcf649517b17fef2d6d123503b5fb4c25d9bd`**
+- Auto-update channel is now **1.0.35 / versionCode 36**.
+- Splash correction:
+  - existing high-fidelity Statistics Lover logo remains the splash asset;
+  - the native circular splash overlay now has a minimum visible duration of 1300 ms;
+  - an early web `appReady()` signal schedules the reveal instead of removing the splash before it is visible;
+  - WebView fade-in / splash fade-out behavior remains unchanged;
+  - system splash remains iconless to avoid the earlier double-logo / mask-size jump.
+- Header-logo web correction:
+  - web commit `7d11ea92da7256128a92aa9ef9d01fdbd18a0f7a`;
+  - logo URL is cache-busted as `/brand/statistics-lover-logo.jpg?v=20261004-2`;
+  - header explicitly reserves the 52x52 logo slot and prioritizes the image request;
+  - service-worker cache advanced to `statistics-lover-static-v9`;
+  - Quality run `37187777649` passed;
+  - Vercel deployment `dpl_DpDi4Wwwynu3UtbaMvxGKsm3fJUR` is READY and assigned to `statistics-lover.vercel.app`;
+  - production JS bundle verified as `index-Cbxz-gPm.js` and contains the cache-busted logo path.
+- Adaptive theme remains active:
+  - Android shell/splash/status/navigation bars use DayNight `values` / `values-night` resources;
+  - website uses `prefers-color-scheme: dark` overrides and light/dark theme-color metadata;
+  - no manual device-specific theme fork is introduced; phone, tablet and desktop/browser follow the OS/browser preference automatically.
+- Existing website UI, auth-aware startup, stable session origin, recording startup, compact landscape fullscreen, fullscreen-exit and Drive seek fixes remain preserved.
