@@ -476,3 +476,34 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
   - Scale is recalculated on resize/orientation events and again during the transition.
   - The custom button remains the user-facing fullscreen control.
 - Existing package ID and permanent signing certificate remain unchanged; signed 1.0.20/1.0.21 installs can receive 1.0.22 through the existing in-app updater.
+
+
+## VERIFIED RELEASE — Statistics Lover 1.0.23 landscape fullscreen + current homepage
+
+- User identified two remaining issues after 1.0.22:
+  1. Statistics Lover custom fullscreen must enter **landscape mode** immediately.
+  2. The APK was still loading the older production homepage instead of the working homepage stabilized earlier on the Vercel `develop` alias.
+- Root causes verified:
+  - `NativeMainActivity` was still declared with `android:screenOrientation="portrait"` in the manifest, which could fight the runtime landscape request.
+  - Both debug and release `APP_URL` still pointed to `https://statistics-lover.vercel.app/`, whose bundle is older than the current `develop` deployment.
+- Fix source commit: `1f1d510059de11116913ecdb3ced82d8438c11ad`.
+- Product/version: **Statistics Lover 1.0.23**
+- Android `versionCode`: **24**
+- GitHub Actions run: **37179092335 — SUCCESS**
+- Signed release artifact ID: **11294711461**
+- Signed APK verification: **PASSED** (APK Signature Scheme v2)
+- Self-update publication: **PASSED**
+- Published APK size: **644851 bytes**
+- Published APK SHA-256: **`01c2098f2e4ae24acf21827aabaf0a6868a7f446ade30e7b1345fbc88882bb92`**
+- Auto-update channel is now **1.0.23 / versionCode 24**.
+- Fullscreen changes:
+  - removed the manifest-level portrait lock from `NativeMainActivity`;
+  - normal app mode explicitly requests portrait in `onCreate`;
+  - Statistics Lover fullscreen explicitly requests `SCREEN_ORIENTATION_LANDSCAPE`;
+  - landscape is reasserted at 80 ms and 240 ms through the transition to handle OEM timing;
+  - 1.0.22 compact 1024x576 fullscreen geometry remains unchanged.
+- Homepage/web source changes:
+  - debug and release `APP_URL` now use `https://statistics-lover-git-develop-statistics-lover.vercel.app/`;
+  - this is the stable Vercel `develop` alias containing the homepage/header/footer/responsive fixes completed earlier in the project;
+  - production `statistics-lover.vercel.app` is no longer used by this APK until the user explicitly promotes the current develop web build to production.
+- Existing package ID, permanent signing certificate and auto-update lineage remain unchanged, so signed 1.0.20–1.0.22 installs can update to 1.0.23 in-app.
