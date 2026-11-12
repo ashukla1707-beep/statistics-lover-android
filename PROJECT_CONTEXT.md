@@ -1064,3 +1064,23 @@ A1/A2 were WebView/native-shell experiments, including a Stat Archive-style shel
   - extracted `res/Td.webp` is **30312 bytes**, **384×384 RGBA**, alpha bounds **(67,67)–(317,317)**;
   - its SHA-256 is exactly **`f33020e716bb1e7d71b4a95f04886277bb12170dc7ee355d80a1a3a30ede22f1`**, proving the approved circular splash was packaged byte-for-byte into the final signed APK.
 - Final on-device visual confirmation remains the only pending check after the user installs/opens 1.0.41.
+
+## COLD-START 404 INVESTIGATION — 1.0.41 (2026-11-12; FIX DEFERRED)
+
+- Device screenshot confirms installed Statistics Lover APK **1.0.41**.
+- Authoritative Android source is this repository (`ashukla1707-beep/statistics-lover-android`), branch `main`. Do not use the old `android-app/` folder in the web repository as the current Android source.
+- Verified `app/build.gradle.kts`:
+  - package/application ID: `com.statisticslover.app`;
+  - `versionCode=42`, `versionName=1.0.41`;
+  - both debug and release `BuildConfig.APP_URL` are `https://statistics-lover.vercel.app/app-start`.
+- Verified `NativeMainActivity.java`: on a fresh launch it loads `BuildConfig.APP_URL` through `webView.loadUrl(BuildConfig.APP_URL)`.
+- Verified `downloads/version.json`: versionCode 42 / versionName 1.0.41; published APK SHA-256 `69c31479d1eed910e71ee838023446dd00c08fb52a433c75d399c6dd9f8e3c31`.
+- Cross-repository finding (web repo `ashukla1707-beep/statistics-lover`):
+  - web `develop` defines `/app-start` in `src/App.tsx`, including native-shell detection and auth/session-aware routing;
+  - web `main` does not define `/app-start`;
+  - Vercel production checked 2026-11-12 was READY from web `main` commit `9bcc232417af53354316a8dafc8c3d35f688b9e8`.
+- **Diagnosis:** APK requests a route present on web `develop` but absent from the production web build. This matches the reported behavior: cold launch 404 at `/app-start`; tapping Go home navigates to the valid `/` homepage. Treat this as a web branch/release mismatch, not an Android APK or Supabase failure.
+- Owner explicitly deferred remediation: **do not modify code, publish a web deployment, change APP_URL, or rebuild the APK until the owner asks to proceed.**
+- Planned remediation when authorized: review the current web `develop` -> `main` diff for unrelated changes; use the normal web release process to promote the intended startup route; verify production `/app-start` and `/`; then cold-launch this APK and validate signed-in/signed-out/session restoration. Keep the APK's `/app-start` URL; it provides native splash/session-aware startup and should not be bypassed by changing it to `/`.
+- Cross-reference: see the web repository's `PROJECT_CONTEXT.md` section **“ANDROID 1.0.41 COLD-START 404 — ROOT CAUSE IDENTIFIED, FIX DEFERRED”**.
+- No Android source or APK was changed during this investigation.
